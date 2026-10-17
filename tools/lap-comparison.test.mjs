@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { compareLaps, formatDelta, deltaWinner } from "../public/lap-comparison.js";
+import { compareLaps, formatDelta, deltaWinner, lapPositionChange } from "../public/lap-comparison.js";
 
 const lap = (number, time, clean = true) => ({ lap: number, time, clean });
 test("comparison aligns actual lap numbers and exposes who was faster on each lap", () => {
@@ -41,4 +41,24 @@ test("missing/invalid values remain absent and deltas round without negative zer
   assert.equal(formatDelta(null), "—"); assert.equal(formatDelta(NaN), "—");
   assert.equal(formatDelta(-0.0001), "0.000"); assert.equal(deltaWinner(-0.0001), null);
   assert.equal(formatDelta(-0.0005), "−0.001"); assert.equal(formatDelta(0.0005), "+0.001");
+});
+test("position arrows use adjacent observed laps for both crews, including the lap before the visible window", () => {
+  const a=[{...lap(7,"1:40.000"),position:10},{...lap(8,"1:40.000"),position:8}];
+  const b=[{...lap(7,"1:41.000"),position:6},{...lap(8,"1:41.000"),position:7}];
+  const result=compareLaps({}, {},a,b,3);
+  assert.deepEqual(result.laps[0].positionA,{from:10,to:8,delta:2});
+  assert.deepEqual(result.laps[0].positionB,{from:6,to:7,delta:-1});
+  assert.equal(result.laps[1].positionA,null);
+  const full=[7,8,9,10].map(n=>({...lap(n,"1:40.000"),position:20-n}));
+  assert.equal(compareLaps({}, {},full,[],3).laps.at(-1).positionA.delta,1);
+});
+test("unknown, unchanged, invalid or skipped lap positions never produce an arrow; class filtering uses class rank", () => {
+  const previous={lap:7,position:10,classPosition:3};
+  assert.equal(lapPositionChange({lap:8,position:10},previous),null);
+  assert.equal(lapPositionChange({lap:9,position:8},previous),null);
+  for(const position of [null,0,-1,"8",undefined])assert.equal(lapPositionChange({lap:8,position},previous),null);
+  assert.equal(lapPositionChange({lap:8,position:8},previous,{withinClass:true}),null);
+  assert.deepEqual(lapPositionChange({lap:8,position:8,classPosition:4},previous,{withinClass:true}),{from:3,to:4,delta:-1});
+  const legacy=compareLaps({last: "1:40.000",lastLapNumber:8,position:8},{},[lap(7,"1:40.000")]);
+  assert.equal(legacy.laps[0].positionA,null);
 });

@@ -96,6 +96,12 @@ export class TimingProvider {
     snapshot.checkedAt = now;
     snapshot.source.transport = this.push?.connected ? "push + HTTPS" : "HTTP polling";
     snapshot.source.pushReceivedAt = this.push?.lastAt ?? null;
+    if (useRace && this.observations.session === null) {
+      try {
+        const cached = JSON.parse(await readFile(new URL("snapshot.json", this.cacheDir), "utf8"));
+        if (isSelectedRace(cached, this.selectionMode) && cached.session.id === snapshot.session.id) this.observations.restore(cached);
+      } catch { /* First startup or unavailable cache: observe from this point onward. */ }
+    }
     this.observations.update(snapshot, now);
     this.snapshot = snapshot;
     this.onSnapshot?.(snapshot);

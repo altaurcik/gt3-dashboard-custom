@@ -284,17 +284,23 @@ function renderComparison() {
   const rows = [current.a, current.b];
   if (rows.some((row) => !row)) { $("#comparison").innerHTML = `<div class="empty"><strong>${current.reason === "leader" ? `No crew ahead of #${escape(current.aNumber)}` : current.mode === "ahead" ? "Waiting for race positions" : "Select two crews"}</strong></div>`; return; }
   const [a, b] = rows;
-  const result = compareLaps(a, b, pageSnapshot()?.history?.[a.number], pageSnapshot()?.history?.[b.number], Number($("#lap-window").value));
+  const result = compareLaps(a, b, pageSnapshot()?.history?.[a.number], pageSnapshot()?.history?.[b.number], Number($("#lap-window").value), { withinClass: filter !== "all" });
   const winningNumber = result.paceWinner === "a" ? a.number : b.number;
   const verdict = result.pairedCount === 0 ? "Waiting for matched clean laps"
     : result.paceWinner ? `#${winningNumber} faster by ${Math.abs(result.paceDelta).toFixed(3)} s/lap` : "Equal pace";
   const timeCell = (lap, winner, side) => `<td class="${winner === side ? "lap-winner" : ""}" data-side="${side}">${dash(lap?.time)}${lap && lap.clean !== true ? '<sup title="Excluded from average: pit, caution or incomplete observation">†</sup>' : ""}</td>`;
   const deltaCell = (delta) => `<td class="lap-delta ${deltaWinner(delta) ? `winner-${deltaWinner(delta)}` : ""}">${formatDelta(delta)}</td>`;
+  const positionMarker = (change, side, number) => {
+    if (!change) return "";
+    const gained = change.delta > 0;
+    const label = `${side.toUpperCase()} · #${number}: ${filter !== "all" ? "class " : ""}P${change.from} → P${change.to}; ${gained ? "gained" : "lost"} ${Math.abs(change.delta)} position${Math.abs(change.delta) === 1 ? "" : "s"}. Observed at lap completion.`;
+    return `<span class="lap-position-change ${gained ? "position-up" : "position-down"}" role="img" aria-label="${escape(label)}" title="${escape(label)}"><small class="side-${side}" aria-hidden="true">${side.toUpperCase()}</small><span aria-hidden="true">${gained ? "↑" : "↓"}</span></span>`;
+  };
   $("#comparison").innerHTML = `<div class="comparison-verdict ${result.paceWinner ? `winner-${result.paceWinner}` : ""}"><strong>${escape(verdict)}</strong>${result.pairedCount ? `<span>${result.pairedCount} matched clean lap${result.pairedCount === 1 ? "" : "s"}</span>` : ""}</div>
     <div class="lap-comparison-scroll"><table class="lap-comparison-table"><caption class="sr-only">Same-number race laps. Delta is A minus B in seconds: negative means A is faster, positive means B is faster.</caption>
     <colgroup><col class="lap-label-col"><col><col><col class="lap-delta-col"></colgroup>
     <thead><tr><th scope="col">LAP</th><th scope="col" class="side-a">A</th><th scope="col" class="side-b">B</th><th scope="col" title="A minus B, seconds. Negative: A faster. Positive: B faster.">Δ A−B</th></tr></thead>
-    <tbody>${result.laps.length ? result.laps.map((lap) => `<tr><th scope="row">${lap.lap}</th>${timeCell(lap.a, lap.winner, "a")}${timeCell(lap.b, lap.winner, "b")}${deltaCell(lap.delta)}</tr>`).join("") : '<tr><td colspan="4" class="lap-waiting">No completed laps received yet</td></tr>'}</tbody>
+    <tbody>${result.laps.length ? result.laps.map((lap) => `<tr><th scope="row"><span class="lap-number">${lap.lap}</span>${positionMarker(lap.positionA, "a", a.number)}${positionMarker(lap.positionB, "b", b.number)}</th>${timeCell(lap.a, lap.winner, "a")}${timeCell(lap.b, lap.winner, "b")}${deltaCell(lap.delta)}</tr>`).join("") : '<tr><td colspan="4" class="lap-waiting">No completed laps received yet</td></tr>'}</tbody>
     <tfoot><tr class="matched-average"><th scope="row" title="Average over identical clean lap numbers in the selected window">Matched avg</th><td>${formatLapTime(result.paceA)}</td><td>${formatLapTime(result.paceB)}</td>${deltaCell(result.paceDelta)}</tr>
     <tr><th scope="row">Race best</th><td>${dash(a.best)}</td><td>${dash(b.best)}</td>${deltaCell(result.bestDelta)}</tr></tfoot></table></div>
     ${result.hasExcluded ? '<p class="lap-exclusions">† Excluded from pace: pit, caution or incomplete observation.</p>' : ""}`;

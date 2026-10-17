@@ -72,6 +72,20 @@ export function normalize(timing, detail, unit, { mode, receivedAt, changedAt, u
 
 export class ObservationHistory {
   constructor() { this.session = null; this.cars = new Map(); this.pits = []; this.drivers = []; this.messages = new Map(); }
+  restore(snapshot) {
+    this.session = snapshot.session.id;
+    this.cars = new Map(snapshot.rows.map((row) => [row.number, {
+      laps: (snapshot.history?.[row.number] ?? []).slice(-30), completedCount: row.laps,
+      totalSeconds: seconds(row.totalTime), baseline: row.laps ?? 0,
+      displayLast: row.last && row.lastLapNumber !== null ? { lap: row.lastLapNumber, time: row.last, seconds: seconds(row.last), source: row.lastSource } : null,
+      inPit: row.inPit, driver: row.driver, flag: snapshot.session.flag,
+      // We did not observe the whole current lap while the server was stopped.
+      dirtyLap: true,
+    }]));
+    this.pits = (snapshot.pitEvents ?? []).slice(0, 100);
+    this.drivers = (snapshot.driverEvents ?? []).slice(0, 100);
+    this.messages = new Map((snapshot.messages ?? []).slice(-100).map((message) => [`${message.time}|${message.text}`, message]));
+  }
   update(snapshot, now = Date.now()) {
     if (snapshot.session.id !== this.session) {
       this.session = snapshot.session.id; this.cars.clear(); this.pits = []; this.drivers = []; this.messages.clear();
@@ -102,6 +116,8 @@ export class ObservationHistory {
         if (completed && completed.lap > old.baseline && !laps.some((l) => l.lap === completed.lap)) {
           laps.push({
             lap: completed.lap, time: completed.time, seconds: completed.seconds, source: completed.source, driver: row.driver?.code,
+            position: oneLap && Number.isInteger(row.position) && row.position > 0 ? row.position : null,
+            classPosition: oneLap && Number.isInteger(row.classPosition) && row.classPosition > 0 ? row.classPosition : null,
             clean: oneLap && !old.dirtyLap && row.inPit === false && old.inPit === false && old.flag === "GREEN" && snapshot.session.flag === "GREEN", observedAt: now,
           });
         }

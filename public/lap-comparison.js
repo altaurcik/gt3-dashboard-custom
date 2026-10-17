@@ -27,14 +27,22 @@ function completedLaps(row, history) {
   return laps;
 }
 
-export function compareLaps(a, b, historyA = [], historyB = [], requestedWindow = 5) {
+export function lapPositionChange(current, previous, { withinClass = false } = {}) {
+  if (!current || !previous || previous.lap !== current.lap - 1) return null;
+  const field = withinClass ? "classPosition" : "position";
+  const from = previous[field], to = current[field];
+  if (!Number.isInteger(from) || from < 1 || !Number.isInteger(to) || to < 1 || from === to) return null;
+  return { from, to, delta: from - to };
+}
+
+export function compareLaps(a, b, historyA = [], historyB = [], requestedWindow = 5, options = {}) {
   const window = [3, 5, 10].includes(Number(requestedWindow)) ? Number(requestedWindow) : 5;
   const left = completedLaps(a, historyA), right = completedLaps(b, historyB);
   const numbers = [...new Set([...left.keys(), ...right.keys()])].sort((x, y) => y - x).slice(0, window);
   const laps = numbers.map((lap) => {
     const a = left.get(lap) ?? null, b = right.get(lap) ?? null;
     const delta = a && b ? a.seconds - b.seconds : null;
-    return { lap, a, b, delta, winner: deltaWinner(delta) };
+    return { lap, a, b, delta, winner: deltaWinner(delta), positionA: lapPositionChange(a, left.get(lap - 1), options), positionB: lapPositionChange(b, right.get(lap - 1), options) };
   });
   const paired = laps.filter(({ a, b }) => a?.clean === true && b?.clean === true);
   const paceA = paired.length ? paired.reduce((sum, lap) => sum + lap.a.seconds, 0) / paired.length : null;

@@ -58,6 +58,46 @@ test("history does not manufacture initial laps, duplicate laps, or pit events f
   const repeated = history.update(snapshot({ lap: 3 }), 3000);
   assert.equal(repeated.history["3"].length, 1);
 });
+test("lap history records actual overall/class ranks only at an observed single-lap completion", () => {
+  const history=new ObservationHistory();history.update(snapshot(),1000);
+  const next=snapshot({lap:3});next.rows[0].position=12;next.rows[0].classPosition=4;
+  history.update(next,2000);
+  assert.equal(next.history["3"][0].position,12);assert.equal(next.history["3"][0].classPosition,4);
+  const repeated=snapshot({lap:3});repeated.rows[0].position=11;history.update(repeated,3000);
+  assert.equal(repeated.history["3"][0].position,12);
+  const skipped=snapshot({lap:5});history.update(skipped,4000);
+  assert.equal(skipped.history["3"].at(-1).position,null);
+});
+test("restoring observed history keeps old times and events without fabricating old positions or a clean interrupted lap", () => {
+  const history=new ObservationHistory();history.update(snapshot(),1000);
+  const cached=history.update(snapshot({lap:3,inPit:true,current:"B"}),2000);
+  delete cached.history["3"][0].position;delete cached.history["3"][0].classPosition;
+  const resumed=new ObservationHistory();resumed.restore(JSON.parse(JSON.stringify(cached)));
+  const next=resumed.update(snapshot({lap:4,current:"B"}),3000);
+  assert.equal(next.history["3"].length,2);assert.equal(next.history["3"][0].time,cached.history["3"][0].time);
+  assert.equal(next.history["3"][0].position,undefined);assert.equal(next.history["3"][1].position,14);
+  assert.equal(next.history["3"][1].clean,false);assert.equal(next.pitEvents.length,2);
+  assert.equal(next.driverEvents.length,1);
+});
+test("provider restores only same-race observations before the first fresh update", async (context) => {
+  const dir=await mkdtemp(path.join(tmpdir(),"gt3-position-cache-"));
+  context.after(()=>rm(dir,{recursive:true,force:true}));
+  const history=new ObservationHistory();history.update(snapshot({lap:2}),1000);
+  const cached=history.update(snapshot({lap:3}),2000);cached.selection={mode:"auto"};cached.raceAvailable=true;
+  await writeFile(path.join(dir,"snapshot.json"),JSON.stringify(cached));
+  const provider=new TimingProvider({cacheDir:pathToFileURL(dir+path.sep),fetcher:async(url)=>{
+    const p=payload(event.raceId,4);
+    const full=url.includes("SCHEDULE")?{MeetingId:event.meetingId,Units:{r:unit(event.raceId,1,0)}}:url.includes("COMP_DETAIL")?p.detail:p.timing;
+    return Response.json({uid:4,content:{full}});
+  }});
+  const result=await provider.getSnapshot(true);
+  assert.deepEqual(result.history["3"].map(l=>l.lap),[3,4]);
+  assert.equal(result.history["3"][1].clean,false);
+  cached.session.id=event.qualifyingId;cached.session.type=6;cached.session.mode="qualifying";
+  await writeFile(path.join(dir,"snapshot.json"),JSON.stringify(cached));
+  const isolated=new TimingProvider({cacheDir:pathToFileURL(dir+path.sep),fetcher:provider.fetcher});
+  assert.deepEqual((await isolated.getSnapshot(true)).history["3"],[]);
+});
 test("observed pit entry/exit and driver changes are recorded, pit laps excluded from clean pace", () => {
   const history = new ObservationHistory(); history.update(snapshot(), 1000);
   const entering = history.update(snapshot({ lap: 3, inPit: true }), 2000);
