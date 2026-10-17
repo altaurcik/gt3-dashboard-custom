@@ -67,6 +67,7 @@ const trackMap = createTrackMap({ preferences: prefs.map, onChange: (value) => {
 function applyPreferences() {
   document.documentElement.dataset.theme = prefs.theme === "light" ? "light" : "dark";
   document.body.classList.toggle("compact", Boolean(prefs.compact));
+  document.body.classList.toggle("viewport-fit", prefs.layout !== "stacked");
   $("#primary-grid").classList.toggle("stacked", prefs.layout === "stacked");
   $("#theme").setAttribute("aria-label", prefs.theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
   $("#compact").checked = Boolean(prefs.compact);

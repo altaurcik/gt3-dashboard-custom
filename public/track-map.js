@@ -181,7 +181,8 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
     zoom2d = 1; draw2d();
     if (map && bounds) {
       map.resize();
-      map.fitBounds(bounds, { padding: 42,
+      const padding = Math.min(42, Math.max(8, (viewport.clientHeight - 140) / 4));
+      map.fitBounds(bounds, { padding,
         pitch: state.view === "top" ? 0 : 48, bearing: state.view === "top" ? 0 : -20,
         duration: animate ? duration() : 0, maxZoom: 17 });
     }
@@ -314,7 +315,7 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
   const resize = new ResizeObserver(() => {
     projectionDirty = true;
     cancelAnimationFrame(resizeFrame);
-    resizeFrame = requestAnimationFrame(() => { if (map && mapContainer.clientWidth > 0 && mapContainer.clientHeight > 0) map.resize(); });
+    resizeFrame = requestAnimationFrame(() => { if (map && mapContainer.clientWidth > 0 && mapContainer.clientHeight > 0) fit(false); });
   });
   resize.observe(viewport);
   updateControls();

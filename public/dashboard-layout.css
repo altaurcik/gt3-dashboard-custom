@@ -1,0 +1,37 @@
+/* The default desktop dashboard shares the viewport instead of stacking fixed heights. */
+@media (min-width: 1000px) {
+  body.viewport-fit { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  .viewport-fit .topbar { height: 44px; flex: 0 0 44px; }
+  .viewport-fit main { width: 100%; flex: 1; min-height: 0; display: grid; grid-template-rows: auto auto auto minmax(0,1fr) minmax(0,1.1fr); }
+  .viewport-fit .session-bar { grid-row: 1; min-height: 64px; padding: 8px 16px; gap: 18px; }
+  .viewport-fit .session-detail { flex-direction: row; align-items: center; }
+  .viewport-fit .notice { grid-row: 2; min-height: 28px; padding: 5px 16px; }
+  .viewport-fit .focus-strip { grid-row: 3; min-height: 36px; padding: 2px 12px; }
+  .viewport-fit .primary-grid { grid-row: 4; min-height: 0; }
+  .viewport-fit .primary-grid > .panel { min-height: 0; display: flex; flex-direction: column; }
+  .viewport-fit .panel-header { height: 38px; min-height: 38px; flex-shrink: 0; padding: 3px 8px; }
+  .viewport-fit .track-panel > .panel-header { flex-wrap: nowrap; }
+  .viewport-fit .map-actions { flex-wrap: nowrap; gap: 3px; }
+  .viewport-fit .map-control-label { display: none; }
+  .viewport-fit .table-scroll { height: 0; flex: 1; min-height: 0; }
+  .viewport-fit .sector-legend { padding: 4px 10px; flex-shrink: 0; }
+  .viewport-fit .panel-footer { min-height: 25px; padding: 3px 10px; flex-shrink: 0; }
+  .viewport-fit .map-viewport { flex: 1; min-height: 0; }
+  .viewport-fit .map-heading { top: 8px; left: 10px; }
+  .viewport-fit .track-bottom { padding: 6px 12px; flex-shrink: 0; }
+  .viewport-fit .support-grid { grid-row: 5; min-height: 0; grid-template-columns: 1.2fr 1fr 1fr; }
+  .viewport-fit .support-grid > .panel { min-height: 0; display: flex; flex-direction: column; }
+  .viewport-fit .comparison-panel { grid-column: auto; }
+  .viewport-fit .comparison-controls { padding: 6px 12px; gap: 10px; flex-shrink: 0; }
+  .viewport-fit .comparison-choice { gap: 3px; }
+  .viewport-fit .comparison-choice select { min-height: 30px; padding-top: 4px; padding-bottom: 4px; }
+  .viewport-fit .comparison-auto-control { padding: 0 12px 4px; flex-shrink: 0; }
+  .viewport-fit .comparison-auto-control label { min-height: 24px; }
+  .viewport-fit #comparison { flex: 1; min-height: 0; overflow: auto; }
+  .viewport-fit .comparison-verdict { padding: 6px 12px; }
+  .viewport-fit .lap-comparison-scroll { max-height: none; overflow: visible; margin: 0 12px 8px; }
+  .viewport-fit .empty { min-height: 0; padding: 12px; }
+  .viewport-fit .app-footer { min-height: 28px; flex: 0 0 auto; padding: 3px 12px; }
+  .viewport-fit .app-footer button { min-height: 22px; padding: 1px 6px; }
+  .viewport-fit .sources { position: fixed; top: 52px; right: 12px; z-index: 60; width: min(720px,calc(100vw - 24px)); max-height: calc(100dvh - 64px); overflow: auto; margin: 0; }
+}
