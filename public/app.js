@@ -1,4 +1,4 @@
-import { averagePace, formatLapTime, sectorFill } from "./race-metrics.js";
+import { averagePace, formatLapTime, sectorFill, synchronizedGap } from "./race-metrics.js";
 import { comparisonSelection, resolveComparison, chooseComparisonSide } from "./comparison-selection.js";
 import { createTrackMap } from "./track-map.js";
 import { newestRaceMessages, raceEventStyle } from "./race-control.js";
@@ -52,7 +52,7 @@ prefs.delay = Math.min(120, Math.max(0, Number(prefs.delay) || 0));
 let data = null, latest = null, paused = false, buffering = false, frames = [], selected = ["3", null], view = "timing", filter = "all", query = "", lastTableKey = "", lastColumnsKey = "", toastTimer, fetching = false;
 let comparisonChoice = comparisonSelection(prefs.comparison), entries = [], entryOptionsKey = "";
 let comparisonScope = null;
-let realtime = null, realtimeReady = false;
+let realtime = null, realtimeReady = false, realtimeReceivedAt = 0;
 let lastRaceMessagesKey = null, lastPitEventsKey = null;
 const isVerstappenRace = () => data?.event?.isVerstappenRace ?? prefs.raceMode === "gt3";
 let scopedBase = null, scopedClass = null, scopedSnapshot = null;
@@ -188,12 +188,14 @@ function crewMarkup(row) {
 }
 const paceFor = (row) => averagePace(data?.history?.[row.number] ?? [], Number($("#lap-window").value));
 function sectorMarkup(row) {
+  const lap = Number.isInteger(row.sectorLapNumber) && row.sectorLapNumber > 0 ? row.sectorLapNumber : null;
+  const complete = lap === row.laps && row.sectors.length === 3 && row.sectors.every((sector) => sector.time);
   return `<div class="sector-strip">${[0, 1, 2].map((index) => {
     const sector = row.sectors[index];
     const fill = sectorFill(row.progress, index);
     const state = sector?.time ? sector.state ?? 0 : 0;
-    return `<div class="sector-unit" data-state="${state}" title="S${index + 1}: ${sector?.time ? escape(sector.time) : "No sector time"}${fill === null ? "" : ` · Source progress ${Math.round(fill * 100)}%`}"><span><small>S${index + 1}</small>${dash(sector?.time)}</span><div class="sector-track">${fill === null ? "" : `<i style="width:${fill * 100}%"></i>`}</div></div>`;
-  }).join("")}</div>`;
+    return `<div class="sector-unit" data-state="${state}" title="Lap ${lap ?? "unknown"} · S${index + 1}: ${sector?.time ? escape(sector.time) : "Awaiting timing line"}${fill === null ? "" : ` · Source progress ${Math.round(fill * 100)}%`}"><span><small>S${index + 1}</small>${dash(sector?.time)}</span><div class="sector-track">${fill === null ? "" : `<i style="width:${fill * 100}%"></i>`}</div></div>`;
+  }).join("")}</div>${lap ? `<small class="sector-lap-label">Lap ${lap} · ${complete ? "completed" : "in progress"}</small>` : ""}`;
 }
 function renderTable() {
   if (!data?.rows) return;
@@ -229,7 +231,9 @@ function renderTable() {
       content += `<td class="metric-count metric-group-start">${dash(r.laps)}</td><td>${dash(r.pitStops)}</td><td class="metric-group-start">${laps.length ? `<div class="stint-row">${laps.map((l) => `<span class="${l.clean ? "" : "unclean"}" title="Lap ${l.lap} · ${escape(l.time)} · ${escape(l.driver)}${l.clean ? "" : " · caution or pit lap"}"></span>`).join("")}</div>` : '<span class="muted">Waiting for observed race laps</span>'}</td>`;
     } else {
       const pace = paceFor(r);
-      content += `<td class="metric-lap metric-group-start" title="${r.lastSource === "observed-total-time-delta" ? "Completed lap calculated from two observed cumulative race times" : "Last completed lap from the timing feed"}">${dash(r.last)}</td><td class="metric-lap">${dash(r.best)}</td><td class="pace-cell metric-pace" title="Average of ${pace.count} observed clean race laps"><span>${formatLapTime(pace.seconds)}</span><small>${pace.count} / ${pace.window} laps</small></td><td class="metric-sectors metric-group-start">${sectorMarkup(r)}</td><td class="metric-gap metric-group-start">${status ?? (r.position === 1 ? "LEADER" : dash(r.gap))}</td><td class="metric-gap">${dash(r.interval)}</td><td class="metric-count metric-group-start">${dash(r.laps)}</td><td>${r.inPit ? `<span class="pit-state">IN ${dash(r.pitStops)}</span>` : `<span class="${r.pitStops ? "" : "pit-zero"}">${dash(r.pitStops)}</span>`}</td>`;
+      const gap = synchronizedGap(r, data.rows.find((row) => row.position === 1), r.gap);
+      const interval = synchronizedGap(r, data.rows.find((row) => row.position === r.position - 1), r.interval);
+      content += `<td class="metric-lap metric-group-start" title="${r.lastSource === "observed-total-time-delta" ? "Completed lap calculated from two observed cumulative race times" : "Last completed lap from the timing feed"}">${dash(r.last)}</td><td class="metric-lap">${dash(r.best)}</td><td class="pace-cell metric-pace" title="Average of ${pace.count} observed clean race laps"><span>${formatLapTime(pace.seconds)}</span><small>${pace.count} / ${pace.window} laps</small></td><td class="metric-sectors metric-group-start">${sectorMarkup(r)}</td><td class="metric-gap metric-group-start" title="${escape(gap.title)}">${status ?? (r.position === 1 ? "LEADER" : dash(gap.value))}</td><td class="metric-gap" title="${escape(interval.title)}">${dash(interval.value)}</td><td class="metric-count metric-group-start">${dash(r.laps)}</td><td>${r.inPit ? `<span class="pit-state">IN ${dash(r.pitStops)}</span>` : `<span class="${r.pitStops ? "" : "pit-zero"}">${dash(r.pitStops)}</span>`}</td>`;
     }
     return `<tr data-car="${escape(r.number)}" class="${isVerstappenRace() && r.number === "3" ? "favorite " : ""}${selected[0] === r.number ? "selected-a" : selected[1] === r.number ? "selected-b" : ""}">${content}</tr>`;
   }).join("") : `<tr><td class="table-loading" colspan="${columns.length}">${data.rows.length ? "No crews match this filter. Clear the search or select All classes." : `<div class="race-waiting"><strong>Waiting for race timing</strong><span>${escape(data.event?.seriesName ?? "Portimão race weekend")} · ${escape(data.session?.name ?? "Race")}</span><p>Last / best lap, S1–S3 and pace will appear when the official race feed opens.</p></div>`}</td></tr>`;
@@ -409,7 +413,7 @@ function chooseFrame() {
   else { if (!data) { renderFavorite(); renderComparison(); } renderStatus(); }
 }
 async function poll(manual = false) {
-  if (realtimeReady && !manual) return;
+  if (realtimeReady && performance.now() - realtimeReceivedAt < 15000 && !manual) return;
   if (fetching) return; fetching = true; $("#refresh").disabled = true;
   const requestedMode = prefs.raceMode;
   try {
@@ -442,11 +446,11 @@ function startRealtime() {
   if (!window.EventSource) return;
   const requestedMode = prefs.raceMode;
   const stream = new EventSource(`/api/events?view=${requestedMode}`); realtime = stream;
-  stream.onopen = () => { if (stream === realtime) realtimeReady = true; };
+  stream.onopen = () => { if (stream === realtime) { realtimeReady = true; realtimeReceivedAt = performance.now(); } };
   stream.onerror = () => { if (stream === realtime) realtimeReady = false; };
   stream.onmessage = (message) => {
     if (stream !== realtime || requestedMode !== prefs.raceMode) return;
-    try { acceptSnapshot(JSON.parse(message.data)); } catch { realtimeReady = false; }
+    try { acceptSnapshot(JSON.parse(message.data)); realtimeReceivedAt = performance.now(); } catch { realtimeReady = false; }
   };
 }
 renderComparison();
@@ -459,4 +463,5 @@ startRealtime();
 const polling = setInterval(() => void poll(), 5000);
 const ticking = setInterval(() => { updateClock(); if (prefs.delay && !paused) chooseFrame(); else renderStatus(); }, 1000);
 window.addEventListener("pagehide", () => { clearInterval(polling); clearInterval(ticking); clearTimeout(toastTimer); realtime?.close(); trackMap.destroy(); });
+window.addEventListener("pageshow", (event) => { if (event.persisted) window.location.reload(); });
 

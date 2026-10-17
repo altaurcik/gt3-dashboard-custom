@@ -16,3 +16,4 @@
 .timing-panel th.metric-gap { border-bottom-color: color-mix(in srgb,var(--timing-gap) 48%,var(--border)); }
 .timing-panel .pit-state { display: inline-block; padding: 2px 5px; border-radius: 3px; border: 1px solid color-mix(in srgb,var(--negative) 45%,transparent); color: var(--negative); background: color-mix(in srgb,var(--negative) 9%,transparent); font-weight: 600; }
 .timing-panel .pit-zero { color: var(--muted); }
+.sector-lap-label{display:block;margin-top:2px;text-align:left;font:11px/1.2 Geist,system-ui,sans-serif;color:var(--muted)}

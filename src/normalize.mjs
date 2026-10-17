@@ -7,6 +7,20 @@ export function seconds(text) {
 }
 const finite = (value) => typeof value === "number" && Number.isFinite(value) ? value : null;
 const text = (value) => typeof value === "string" ? value : null;
+function rememberSectors(row, previous = new Map()) {
+  const known = new Map(previous);
+  if (Number.isInteger(row.sectorLapNumber) && row.sectorLapNumber > 0) known.set(row.sectorLapNumber, row.sectors.map((sector) => ({ ...sector })));
+  return new Map([...known].filter(([lap]) => lap >= (row.laps ?? 0) - 1).slice(-3));
+}
+export function completedLapSectors(lapSeconds, sectors = []) {
+  const result = [0, 1, 2].map((i) => seconds(sectors[i]?.time) > 0 ? { ...sectors[i], derived: false } : null);
+  const missing = result.map((sector, i) => sector ? null : i).filter((i) => i !== null);
+  if (lapSeconds > 0 && missing.length === 1) {
+    const remainder = Math.round((lapSeconds - result.reduce((sum, sector) => sum + (seconds(sector?.time) ?? 0), 0)) * 1000);
+    if (remainder > 0) result[missing[0]] = { time: remainder < 60000 ? (remainder / 1000).toFixed(3) : `${Math.floor(remainder / 60000)}:${((remainder % 60000) / 1000).toFixed(3).padStart(6, "0")}`, derived: true };
+  }
+  return result;
+}
 export function flagName(info) {
   if (info?.ChequeredFlag) return "CHEQUERED";
   const value = info?.TrackFlag;
@@ -79,6 +93,7 @@ export class ObservationHistory {
       totalSeconds: seconds(row.totalTime), baseline: row.laps ?? 0,
       displayLast: row.last && row.lastLapNumber !== null ? { lap: row.lastLapNumber, time: row.last, seconds: seconds(row.last), source: row.lastSource } : null,
       inPit: row.inPit, driver: row.driver, flag: snapshot.session.flag,
+      sectorLaps: rememberSectors(row), pitLap: row.inPit !== false,
       // We did not observe the whole current lap while the server was stopped.
       dirtyLap: true,
     }]));
@@ -94,6 +109,7 @@ export class ObservationHistory {
     for (const row of snapshot.rows) {
       const old = this.cars.get(row.number);
       const laps = old?.laps ?? [];
+      const sectorLaps = rememberSectors(row, old?.sectorLaps);
       const unsafe = row.inPit !== false || snapshot.session.flag !== "GREEN";
       const newLap = row.laps !== null && old?.completedCount !== null && row.laps > old?.completedCount;
       const oneLap = newLap && row.laps === old.completedCount + 1;
@@ -118,11 +134,15 @@ export class ObservationHistory {
             lap: completed.lap, time: completed.time, seconds: completed.seconds, source: completed.source, driver: row.driver?.code,
             position: oneLap && Number.isInteger(row.position) && row.position > 0 ? row.position : null,
             classPosition: oneLap && Number.isInteger(row.classPosition) && row.classPosition > 0 ? row.classPosition : null,
+            totalTime: completed.lap === row.laps ? row.totalTime : null,
+            sectors: completedLapSectors(completed.seconds, sectorLaps.get(completed.lap)),
+            mapEligible: oneLap && !old.pitLap && row.inPit === false && old.inPit === false,
             clean: oneLap && !old.dirtyLap && row.inPit === false && old.inPit === false && old.flag === "GREEN" && snapshot.session.flag === "GREEN", observedAt: now,
           });
         }
       }
       this.cars.set(row.number, { laps: laps.slice(-30), completedCount: row.laps, totalSeconds,
+        sectorLaps, pitLap: newLap ? row.inPit !== false : Boolean(old?.pitLap || row.inPit !== false),
         baseline: old?.baseline ?? row.laps ?? row.lastLapNumber ?? 0, displayLast: completed,
         inPit: row.inPit, driver: row.driver, flag: snapshot.session.flag,
         dirtyLap: newLap ? unsafe : Boolean(old?.dirtyLap || unsafe) });

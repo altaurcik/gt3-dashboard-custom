@@ -122,6 +122,10 @@ export class TimingPositions {
       // A pit, skipped lap or timing correction must not connect unrelated laps.
       const validHistory = old && row.laps >= old.row.laps && row.laps <= old.row.laps + 1;
       const segments = new Map(validHistory ? old.segments.map((segment) => [segment.key, segment]) : []);
+      for (const lap of (snapshot.history?.[row.number] ?? []).slice(-3)) {
+        if (lap.mapEligible !== true) continue;
+        for (const segment of completedSectorSegments({ laps: lap.lap, sectorLapNumber: lap.lap, totalTime: lap.totalTime, sectors: lap.sectors })) segments.set(segment.key, segment);
+      }
       const incoming = completedSectorSegments(row);
       const finishTime = milliseconds(row.totalTime);
       if (finishTime !== null) newest = Math.max(newest ?? 0, finishTime);
@@ -140,7 +144,9 @@ export class TimingPositions {
     const resumed = running && !this.running && this.clock;
     const measuredDelay = measuredReplayDelayMs(this.cars.values());
     const sectorChanged = measuredDelay !== null && this.replayDelayMs !== null && Math.abs(measuredDelay - this.replayDelayMs) > 2000;
-    if (seek || reconnect || (raceStarted && this.clock) || resumed || sectorChanged) {
+    const underrun = running && newest > this.latestEnd && this.playhead !== null && hasSegments
+      && ![...this.cars.values()].some((state) => state.segments.some((segment) => segment.start <= this.playhead && this.playhead <= segment.end));
+    if (seek || reconnect || (raceStarted && this.clock) || resumed || sectorChanged || underrun) {
       for (const state of this.cars.values()) {
         if (seek || reconnect || raceStarted) state.segments = completedSectorSegments(state.row);
         state.displayed = undefined;

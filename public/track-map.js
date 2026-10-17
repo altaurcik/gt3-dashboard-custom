@@ -71,6 +71,10 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
     const fresh = freshPositions();
     if (!fresh && !paused && !frozenForStale) { positions.freeze(now); frozenForStale = true; }
     const list = positions.positions(now), visible = new Set();
+    const replayingCount = positions.running ? list.filter((item) => item.replaying).length : 0;
+    for (const [key, value] of Object.entries({ cars: list.length, replaying: replayingCount, awaiting: list.length - replayingCount })) {
+      if (markerLayer.dataset[key] !== String(value)) markerLayer.dataset[key] = String(value);
+    }
     if (projectionDirty || !projectionBox) {
       projectionBox = viewport.getBoundingClientRect(); projectionMatrix = state.mode === "2d" ? svg.getScreenCTM() : null; projectionDirty = false;
     }
@@ -108,17 +112,18 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
     for (const [number, marker] of markers) if (!visible.has(number)) { marker.remove(); markers.delete(number); }
     const status = $("#map-position-status");
     const replayDelay = positions.delaySeconds(now);
-    const replayText = list.some((item) => item.replaying) ? `Sector replay · ~${Math.ceil(replayDelay ?? 0)}s delay${list.some((item) => !item.replaying) ? " · buffering" : ""}`
+    const replayText = replayingCount ? `Sector replay · ~${Math.ceil(replayDelay ?? 0)}s delay · ${replayingCount}/${list.length} cars replaying confirmed sectors`
       : list.length ? `Estimated · ${list.length} cars · buffering sectors` : "Buffering completed sectors…";
     const text = !snapshot?.raceAvailable ? "Waiting for race positions" : !circuitPath ? "Calibrating timing positions…"
       : snapshot.session.state === 0 ? "Waiting for race sectors" : paused ? `Estimated · ${list.length} cars · PAUSED`
       : snapshot.session.complete ? "Estimated · race finished" : !fresh ? "Estimated · data stale"
+      : snapshot.session.flag === "RED" ? "Red flag · playback stopped" : snapshot.session.flag === "UNKNOWN" ? "Awaiting track flag"
       : reducedMotion() ? `Estimated · ${list.length} cars` : replayText;
     const statusState = !snapshot?.raceAvailable ? "pending" : paused ? "paused" : !fresh ? "stale" : "estimated";
     if (status.dataset.state !== statusState) status.dataset.state = statusState;
     const compactText = !snapshot?.raceAvailable ? "Awaiting race" : !circuitPath ? "Calibrating…" : snapshot.session.state === 0 ? "Awaiting start"
-      : paused ? "PAUSED" : snapshot.session.complete ? "Finished" : !fresh ? "Data stale"
-      : list.some((item) => item.replaying) ? `~${Math.ceil(replayDelay ?? 0)}s delay${list.some((item) => !item.replaying) ? " · buffering" : ""}` : reducedMotion() ? "Estimated" : "Buffering sectors";
+      : paused ? "PAUSED" : snapshot.session.complete ? "Finished" : !fresh ? "Data stale" : snapshot.session.flag === "RED" ? "RED FLAG" : snapshot.session.flag === "UNKNOWN" ? "Awaiting flag"
+      : replayingCount ? `~${Math.ceil(replayDelay ?? 0)}s${replayingCount < list.length ? ` · ${replayingCount}/${list.length} moving` : " delay"}` : reducedMotion() ? "Estimated" : "Awaiting sectors";
     if (status.lastChild.textContent !== compactText) status.lastChild.textContent = compactText;
     const statusTitle = `${text}. Estimated, not GPS. Completed sectors are replayed over their measured times. No delivery reserve is added.`;
     if (status.title !== statusTitle) status.title = statusTitle;
