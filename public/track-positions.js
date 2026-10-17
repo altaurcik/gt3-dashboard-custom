@@ -76,6 +76,7 @@ export class TimingPositions {
     this.session = null; this.cars = new Map(); this.playhead = null;
     this.clock = null; this.lastFrame = null;
     this.running = false; this.bufferMs = 0; this.targetBufferMs = 0; this.latestEnd = null;
+    this.startRealTime = null; this.active = false;
   }
   advance(now) {
     if (this.running && this.lastFrame !== null && this.playhead !== null) {
@@ -94,7 +95,8 @@ export class TimingPositions {
     this.advance(now);
     const active = snapshot.session.state === 1 && !snapshot.session.complete;
     const present = new Set();
-    let newest = null, longest = 0;
+    let newest = null;
+    const durations = [];
     for (const row of snapshot.rows) {
       if (!positionEligible(row)) continue;
       present.add(row.number);
@@ -109,26 +111,33 @@ export class TimingPositions {
         segments.set(segment.key, segment); newest = Math.max(newest ?? 0, segment.end);
       }
       const ordered = [...segments.values()].sort((a, b) => a.start - b.start).slice(-12);
-      for (const segment of ordered) {
-        longest = Math.max(longest, segment.end - segment.start);
-      }
+      // Old formation laps and a single pit-delayed car must not delay the field.
+      for (const segment of ordered.slice(-3)) durations.push(segment.end - segment.start);
       this.cars.set(row.number, { row, segments: ordered, displayed: validHistory ? old.displayed : undefined, staticDistance: sectorDistance(row.progress) });
     }
     for (const number of this.cars.keys()) if (!present.has(number)) this.cars.delete(number);
     // A TV Sync seek backwards, reconnect or long inactive tab starts a new buffer.
+    durations.sort((a, b) => a - b);
+    this.targetBufferMs = (durations[Math.ceil(durations.length * .95) - 1] ?? 0) + 8000;
     const seek = newest !== null && this.latestEnd !== null && newest < this.latestEnd - 2000;
     const reconnect = newest !== null && this.latestEnd !== null && newest > this.latestEnd && this.playhead > newest + 20000;
-    if (seek || reconnect) {
-      for (const state of this.cars.values()) { state.segments = completedSectorSegments(state.row); state.displayed = undefined; }
+    const raceStarted = snapshot.session.startRealTime && snapshot.session.startRealTime !== this.startRealTime;
+    const excessiveBuffer = this.bufferMs > this.targetBufferMs * 1.75;
+    if (seek || reconnect || (raceStarted && this.clock) || excessiveBuffer) {
+      for (const state of this.cars.values()) {
+        if (seek || reconnect || raceStarted) state.segments = completedSectorSegments(state.row);
+        state.displayed = undefined;
+      }
       this.playhead = null; this.clock = null;
     }
+    this.startRealTime = snapshot.session.startRealTime ?? null;
     this.latestEnd = newest;
-    this.targetBufferMs = longest + 8000;
-    if (active && longest > 0 && newest !== null && this.playhead === null) {
+    if (active && durations.length && newest !== null && this.playhead === null) {
       this.bufferMs = this.targetBufferMs; this.playhead = newest - this.bufferMs;
       this.clock = { time: newest, at: now };
     }
     this.static = snapshot.session.complete || snapshot.session.state >= 2 || reduced;
+    this.active = active;
     this.running = active && fresh && !reduced && !["RED", "UNKNOWN"].includes(snapshot.session.flag);
   }
   positions(now) {
@@ -146,6 +155,10 @@ export class TimingPositions {
         const completed = state.segments.filter((item) => item.end < this.playhead).at(-1);
         if (completed) state.displayed = completed.to;
         result.push({ row: state.row, distance: state.displayed, age: Infinity, replaying: false });
+      } else if (this.active) {
+        // Show the actual reported progress while a delayed trajectory is filling.
+        // No motion is invented for this fallback, and it never changes the clock.
+        result.push({ row: state.row, distance: state.staticDistance, age: 0, replaying: false });
       }
     }
     return result;
@@ -153,4 +166,5 @@ export class TimingPositions {
   delaySeconds(now) {
     return this.clock && this.playhead !== null ? Math.max(0, (this.clock.time + now - this.clock.at - this.playhead) / 1000) : null;
   }
+  freshnessMs() { return Math.max(20000, Math.min(120000, this.targetBufferMs + 15000)); }
 }

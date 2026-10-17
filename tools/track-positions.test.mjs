@@ -111,7 +111,35 @@ test("missing endpoints never generate an unconfirmed sector or another lap", ()
   positions.update(snapshot([car()]),900001);
   assert.equal(positions.positions(900002)[0].distance,exhausted.distance);
   const empty=new TimingPositions();empty.update(snapshot([car({sectors:[]})]),0);
-  assert.deepEqual(empty.positions(1000),[]);
+  assert.equal(empty.positions(1000)[0].distance,4653);
+  assert.equal(empty.positions(1000)[0].replaying,false);
+});
+test("opening mid-sector keeps every eligible car visible while the replay buffer fills", () => {
+  const positions=new TimingPositions();
+  const row=car({laps:3,sectorLapNumber:4,totalTime:"5:16.383",progress:.9897912796707509,sectors:[{time:"32.651"}]});
+  positions.update(snapshot([row]),0);
+  const initial=positions.positions(0)[0];
+  assert.equal(initial.row.number,"71");assert.equal(initial.replaying,false);
+  assert.equal(initial.distance,sectorDistance(row.progress));
+  const begun=positions.positions(8001)[0];
+  assert.equal(begun.replaying,true);
+  assert.ok(positions.positions(10000)[0].distance>begun.distance);
+});
+test("a formation-lap buffer shrinks when racing sectors replace it", () => {
+  const positions=new TimingPositions();
+  positions.update(snapshot([car({sectors:[{time:"3:30.000"},{time:"40.000"},{time:"50.000"}]})]),0);
+  assert.equal(positions.delaySeconds(0),218);
+  positions.update(snapshot([car({laps:11,sectorLapNumber:11,totalTime:"18:40.000"})]),120000);
+  assert.equal(positions.delaySeconds(120000),58);
+  assert.equal(positions.positions(120000)[0].replaying,true);
+});
+test("one pit-delayed outlier does not hold up the field; a sector interval is not prematurely stale", () => {
+  const positions=new TimingPositions();
+  const rows=Array.from({length:30},(_,i)=>car({number:String(i+1)}));
+  rows.push(car({number:"46",sectors:[{time:"3:30.000"},{time:"40.000"},{time:"50.000"}]}));
+  positions.update(snapshot(rows),0);
+  assert.equal(positions.delaySeconds(0),58);
+  assert.ok(positions.freshnessMs()>50000);assert.ok(positions.freshnessMs()<=120000);
 });
 test("a TV Sync seek within the same lap drops sector endpoints from the future", () => {
   const positions=new TimingPositions();

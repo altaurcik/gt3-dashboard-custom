@@ -61,7 +61,7 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
   const save = () => onChange({ ...state });
   const duration = () => reducedMotion() ? 0 : 350;
   const trackColor = () => ({ RED: "#ef4444", YELLOW: "#eab308", "SAFETY CAR": "#fb923c", FCY: "#eab308" })[snapshot?.session?.flag] ?? "#f1f5f9";
-  const freshPositions = () => snapshot?.source?.connection === "connected" && Date.now() - delay * 1000 - (snapshot?.source?.changedAt ?? 0) < 20000;
+  const freshPositions = () => snapshot?.source?.connection === "connected" && Date.now() - delay * 1000 - (snapshot?.source?.changedAt ?? 0) < positions.freshnessMs();
 
   function drawPositions(now = performance.now()) {
     if (disposed) return;
@@ -105,7 +105,8 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
     for (const [number, marker] of markers) if (!visible.has(number)) { marker.remove(); markers.delete(number); }
     const status = $("#map-position-status");
     const replayDelay = positions.delaySeconds(now);
-    const replayText = list.length ? `Sector replay · ~${Math.ceil(replayDelay ?? 0)}s delay${list.some((item) => !item.replaying) ? " · buffering" : ""}` : "Buffering completed sectors…";
+    const replayText = list.some((item) => item.replaying) ? `Sector replay · ~${Math.ceil(replayDelay ?? 0)}s delay${list.some((item) => !item.replaying) ? " · buffering" : ""}`
+      : list.length ? `Estimated · ${list.length} cars · buffering sectors` : "Buffering completed sectors…";
     const text = !snapshot?.raceAvailable ? "Waiting for race positions" : !circuitPath ? "Calibrating timing positions…"
       : snapshot.session.state === 0 ? "Waiting for race sectors" : paused ? `Estimated · ${list.length} cars · PAUSED`
       : snapshot.session.complete ? "Estimated · race finished" : !fresh ? "Estimated · data stale"
