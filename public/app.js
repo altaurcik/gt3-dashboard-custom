@@ -202,6 +202,8 @@ function renderTable() {
   if (key === lastTableKey) return; lastTableKey = key;
   const activeElement = document.activeElement?.dataset?.select;
   const columns = view === "stints" ? ["POS", "CREW / TEAM", "CLASS", "LAPS", "PIT", "OBSERVED LAP HISTORY"] : ["POS", "CREW / TEAM", "CLASS", "LAST", "BEST", `PACE · ${lapWindow}L`, "SECTORS", "GAP", "INT", "LAPS", "PIT"];
+  const metricClasses = view === "stints" ? ["", "", "", "metric-count metric-group-start", "", "metric-group-start"]
+    : ["", "", "", "metric-lap metric-group-start", "metric-lap", "metric-pace", "metric-sectors metric-group-start", "metric-gap metric-group-start", "metric-gap", "metric-count metric-group-start", ""];
   const classNames = [...new Set(data.rows.map((row) => row.className).filter(Boolean))].sort();
   if (filter !== "all" && !classNames.includes(filter)) filter = "all";
   const columnsKey = columns.join("|") + classNames.join("|");
@@ -212,9 +214,9 @@ function renderTable() {
     let columnGroup = table.querySelector("colgroup");
     if (!columnGroup) { columnGroup = document.createElement("colgroup"); table.insertBefore(columnGroup, $("#timing-head")); }
     columnGroup.innerHTML = widths.map((width) => `<col style="width:${width}px">`).join("");
-    $("#timing-head").innerHTML = `<tr>${columns.map((c) => c === "CLASS"
+    $("#timing-head").innerHTML = `<tr>${columns.map((c, i) => c === "CLASS"
       ? `<th scope="col" class="class-filter-heading"><select id="class-filter" class="column-class-filter" aria-label="Filter by class" title="Filter crews by class"><option value="all">CLASS · All</option>${classNames.map((name) => `<option value="${escape(name)}">${escape(name)}</option>`).join("")}</select></th>`
-      : `<th scope="col">${c}</th>`).join("")}</tr>`;
+      : `<th scope="col" class="${metricClasses[i]}">${c}</th>`).join("")}</tr>`;
   }
   $("#class-filter").value = filter;
   $("#class-filter").classList.toggle("class-filter-active", filter !== "all");
@@ -224,10 +226,10 @@ function renderTable() {
     let content = `<td>${status ?? dash(r.position)}</td><td>${crewMarkup(r)}</td><td><span class="class-badge class-${escape(r.className)}">${dash(r.className)}</span></td>`;
     if (view === "stints") {
       const laps = data.history?.[r.number] ?? [];
-      content += `<td>${dash(r.laps)}</td><td>${dash(r.pitStops)}</td><td>${laps.length ? `<div class="stint-row">${laps.map((l) => `<span class="${l.clean ? "" : "unclean"}" title="Lap ${l.lap} · ${escape(l.time)} · ${escape(l.driver)}${l.clean ? "" : " · caution or pit lap"}"></span>`).join("")}</div>` : '<span class="muted">Waiting for observed race laps</span>'}</td>`;
+      content += `<td class="metric-count metric-group-start">${dash(r.laps)}</td><td>${dash(r.pitStops)}</td><td class="metric-group-start">${laps.length ? `<div class="stint-row">${laps.map((l) => `<span class="${l.clean ? "" : "unclean"}" title="Lap ${l.lap} · ${escape(l.time)} · ${escape(l.driver)}${l.clean ? "" : " · caution or pit lap"}"></span>`).join("")}</div>` : '<span class="muted">Waiting for observed race laps</span>'}</td>`;
     } else {
       const pace = paceFor(r);
-      content += `<td title="${r.lastSource === "observed-total-time-delta" ? "Completed lap calculated from two observed cumulative race times" : "Last completed lap from the timing feed"}">${dash(r.last)}</td><td>${dash(r.best)}</td><td class="pace-cell" title="Average of ${pace.count} observed clean race laps"><span>${formatLapTime(pace.seconds)}</span><small>${pace.count} / ${pace.window} laps</small></td><td>${sectorMarkup(r)}</td><td>${status ?? (r.position === 1 ? "LEADER" : dash(r.gap))}</td><td>${dash(r.interval)}</td><td>${dash(r.laps)}</td><td class="${r.inPit ? "pit-in" : ""}">${r.inPit ? "IN " : ""}${dash(r.pitStops)}</td>`;
+      content += `<td class="metric-lap metric-group-start" title="${r.lastSource === "observed-total-time-delta" ? "Completed lap calculated from two observed cumulative race times" : "Last completed lap from the timing feed"}">${dash(r.last)}</td><td class="metric-lap">${dash(r.best)}</td><td class="pace-cell metric-pace" title="Average of ${pace.count} observed clean race laps"><span>${formatLapTime(pace.seconds)}</span><small>${pace.count} / ${pace.window} laps</small></td><td class="metric-sectors metric-group-start">${sectorMarkup(r)}</td><td class="metric-gap metric-group-start">${status ?? (r.position === 1 ? "LEADER" : dash(r.gap))}</td><td class="metric-gap">${dash(r.interval)}</td><td class="metric-count metric-group-start">${dash(r.laps)}</td><td>${r.inPit ? `<span class="pit-state">IN ${dash(r.pitStops)}</span>` : `<span class="${r.pitStops ? "" : "pit-zero"}">${dash(r.pitStops)}</span>`}</td>`;
     }
     return `<tr data-car="${escape(r.number)}" class="${isVerstappenRace() && r.number === "3" ? "favorite " : ""}${selected[0] === r.number ? "selected-a" : selected[1] === r.number ? "selected-b" : ""}">${content}</tr>`;
   }).join("") : `<tr><td class="table-loading" colspan="${columns.length}">${data.rows.length ? "No crews match this filter. Clear the search or select All classes." : `<div class="race-waiting"><strong>Waiting for race timing</strong><span>${escape(data.event?.seriesName ?? "Portimão race weekend")} · ${escape(data.session?.name ?? "Race")}</span><p>Last / best lap, S1–S3 and pace will appear when the official race feed opens.</p></div>`}</td></tr>`;

@@ -1,0 +1,18 @@
+/* Column colors identify metric groups; green/purple sector states remain data-driven. */
+:root { --timing-lap: #bfd6f2; --timing-pace: #7dd3fc; --timing-sector: #b4d5ce; --timing-gap: #ead0a0; }
+:root[data-theme=light] { --timing-lap: #254e78; --timing-pace: #075985; --timing-sector: #345e56; --timing-gap: #785413; }
+.timing-panel .metric-lap { background: color-mix(in srgb,var(--timing-lap) 4%,transparent); }
+.timing-panel .metric-pace { background: color-mix(in srgb,var(--timing-pace) 7%,transparent); }
+.timing-panel .metric-sectors { background: color-mix(in srgb,var(--timing-sector) 3%,transparent); }
+.timing-panel .metric-gap { background: color-mix(in srgb,var(--timing-gap) 6%,transparent); }
+.timing-panel th.metric-lap,.timing-panel td.metric-lap { color: var(--timing-lap); }
+.timing-panel th.metric-pace,.timing-panel .metric-pace > span { color: var(--timing-pace); }
+.timing-panel th.metric-sectors,.metric-sectors .sector-unit[data-state="0"] > span { color: var(--timing-sector); }
+.timing-panel th.metric-gap,.timing-panel td.metric-gap { color: var(--timing-gap); }
+.timing-panel th.metric-count,.timing-panel td.metric-count { color: var(--muted); }
+.timing-panel .metric-group-start { border-left: 1px solid color-mix(in srgb,var(--muted) 45%,var(--border)); }
+.timing-panel th.metric-lap,.timing-panel th.metric-pace { border-bottom-color: color-mix(in srgb,var(--timing-pace) 42%,var(--border)); }
+.timing-panel th.metric-sectors { border-bottom-color: color-mix(in srgb,var(--timing-sector) 42%,var(--border)); }
+.timing-panel th.metric-gap { border-bottom-color: color-mix(in srgb,var(--timing-gap) 48%,var(--border)); }
+.timing-panel .pit-state { display: inline-block; padding: 2px 5px; border-radius: 3px; border: 1px solid color-mix(in srgb,var(--negative) 45%,transparent); color: var(--negative); background: color-mix(in srgb,var(--negative) 9%,transparent); font-weight: 600; }
+.timing-panel .pit-zero { color: var(--muted); }

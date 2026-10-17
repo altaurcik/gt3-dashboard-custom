@@ -53,6 +53,7 @@ Swiss Timing public RAC_PROD / SRO JSON
 | [public/entries.json](public/entries.json), [tools/update-entry-list.mjs](tools/update-entry-list.mjs) | Проверенная официальная заявка SRO для ручного выбора до старта; без квалификационных результатов |
 | [public/styles.css](public/styles.css) | Унаследованные цвета/плотность, темы и адаптивность |
 | [public/dashboard-layout.css](public/dashboard-layout.css) | Настольный Side by side помещается в 100dvh; панели делят доступную высоту, длинные списки прокручиваются внутри |
+| [public/timing-colors.css](public/timing-colors.css) | Цветовые группы колонок: времена/темп, сектора, разрывы и счётчики; активный IN PIT; отдельные токены dark/light |
 | [tools/timing.test.mjs](tools/timing.test.mjs) | Регрессии идентичности сессий, переключения гонки, offline, истории и свежести |
 
 ## Опрос, состояние и хранение
