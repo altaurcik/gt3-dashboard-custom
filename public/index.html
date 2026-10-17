@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#020817">
+  <meta name="description" content="Current Portimão race timing, sectors and pace, with a separate GT3 Verstappen Racing view.">
+  <title>Portimão · Live Timing</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/lap-comparison.css">
+  <link rel="stylesheet" href="/race-control.css">
+  <link rel="stylesheet" href="/pit-events.css">
+  <link rel="stylesheet" href="/vendor/maplibre/maplibre-gl.css">
+  <link rel="stylesheet" href="/track-map.css">
+  <script defer src="/vendor/maplibre/maplibre-gl-csp.js"></script>
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#timing">Skip to timing</a>
+  <header class="topbar">
+    <div class="brand"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 8a12 12 0 0 0 0 8M8 10a6 6 0 0 0 0 4m12-6a12 12 0 0 1 0 8m-4-6a6 6 0 0 1 0 4"/><circle cx="12" cy="12" r="1"/></svg><strong>Live Timing</strong><span class="series-label" id="series-label">PORTIMÃO RACE WEEKEND</span></div>
+    <nav aria-label="Dashboard controls">
+      <div class="dropdown"><button id="layout-button" aria-label="Layout" aria-expanded="false" aria-controls="layout-menu"><span data-icon="layout"></span><span class="control-label">Layout</span></button><div id="layout-menu" class="popover" hidden><strong>Layout</strong><button data-layout="side">Side by side</button><button data-layout="stacked">Stacked</button><label><input id="compact" type="checkbox"> Compact rows</label></div></div>
+      <div class="dropdown"><button id="sync-button" aria-expanded="false" aria-controls="sync-menu"><span data-icon="monitor"></span><span id="sync-label">TV Sync</span></button><div id="sync-menu" class="popover" hidden><strong>TV Sync</strong><p>Delay the timing to match your broadcast.</p><label>Delay <input id="delay" type="number" min="0" max="120" step="1" value="0"> sec</label><p id="delay-note">Applies to data received while this page is open.</p></div></div>
+      <button id="pause" aria-label="Pause timing" aria-pressed="false"><span data-icon="pause"></span></button>
+      <button id="theme" aria-label="Switch to light theme"><span data-icon="sun"></span></button>
+      <button id="sources-button" aria-label="Data sources and availability" aria-expanded="false" aria-controls="sources"><span data-icon="info"></span></button>
+    </nav>
+  </header>
+  <main>
+    <section class="session-bar" aria-label="Event information">
+      <div class="event-title"><svg class="portugal" viewBox="0 0 30 20" role="img" aria-label="Portugal"><path fill="#087c42" d="M0 0h12v20H0z"/><path fill="#de2931" d="M12 0h18v20H12z"/><circle fill="#eecb4a" cx="12" cy="10" r="4"/><path fill="#fff" d="M10 7h4v5l-2 2-2-2z"/></svg><div><h1>Portimão <span>2026</span></h1><p id="event-series">Connecting to the current race…</p></div></div>
+      <div class="session-detail"><select id="race-mode" aria-label="Race selection"><option value="auto">Current race</option><option value="gt3">GT3 · Verstappen #3</option></select><span id="session-name">Connecting to Swiss Timing…</span><span id="session-flag" class="flag-badge">AWAITING DATA</span></div>
+      <div class="event-clock"><span id="clock-label">RACE FEED</span><strong id="race-clock">—</strong><small id="clock-detail">CONNECTING</small></div>
+    </section>
+    <div id="connection-banner" class="notice" role="status">Loading the official timing feed…</div>
+    <aside id="sources" class="sources" hidden>
+      <div><h2>Data sources & availability</h2><button id="sources-close" aria-label="Close source information"><span data-icon="close"></span></button></div>
+      <p>Timing, entries, classes, sectors and Race Control: the public Swiss Timing / SRO feed. Push revision notifications trigger fresh HTTPS documents, streamed to this page immediately. HTTP polling every 5 seconds remains as fallback. A completed session stays labelled as completed.</p>
+      <p>Current race follows the official weekend schedule across series. Select GT3 · Verstappen #3 to pin that race. Practice and qualifying are excluded. The feed provides S1/S2/S3 times and sector-based progress, not F1 mini-sectors. Map positions are estimated from sector progress, not GPS. Team radio, tyre age and track weather are unavailable. Lap history, pace and pit events accumulate while the local server is running.</p>
+      <p><a href="https://www.gt-world-challenge-europe.com/watch-live" target="_blank" rel="noopener noreferrer">Official live coverage ↗</a><a href="https://github.com/bacinger/f1-circuits" target="_blank" rel="noopener noreferrer">Circuit geometry · MIT ↗</a><a href="https://www.redbull.com/eu-en/max-verstappen-gt-world-challenge-portimao-how-to-watch" target="_blank" rel="noopener noreferrer">Event & schedule ↗</a></p>
+      <p id="source-detail"></p>
+    </aside>
+    <section class="focus-strip" aria-label="Favorite crew">
+      <button id="favorite" class="favorite-button" title="Select Verstappen Racing #3"><span data-icon="star"></span><b>#3</b><span>VERSTAPPEN RACING</span></button>
+      <span class="crew-names">Barnicoat <i>/</i> Lulham <i>/</i> Verstappen</span>
+      <div class="focus-stats"><span>POSITION <b id="favorite-position">—</b></span><span>LAST <b id="favorite-time">—</b></span><span>PACE <b id="favorite-pace">—</b></span><span id="favorite-live-driver">Mercedes-AMG GT3 EVO</span></div>
+    </section>
+    <div class="primary-grid" id="primary-grid">
+      <section class="panel timing-panel" id="timing" tabindex="-1">
+        <header class="panel-header"><div class="segments" aria-label="Timing view"><button data-view="timing" aria-pressed="true">Timing</button><button data-view="stints" aria-pressed="false">Stints</button></div><div class="panel-tools"><label class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="Car, driver, team" aria-label="Search car, driver or team"></label><button id="refresh" aria-label="Refresh timing"><span data-icon="refresh"></span></button></div></header>
+        <div class="table-scroll" id="table-scroll"><table><caption class="sr-only">Official race timing. Choose up to two cars for comparison.</caption><thead id="timing-head"></thead><tbody id="timing-body"><tr><td class="table-loading" colspan="12">Connecting to the official timing feed…</td></tr></tbody></table></div>
+        <div class="sector-legend"><span>SECTORS · S1 / S2 / S3</span><span><i class="sector-personal"></i> Personal best <i class="sector-overall"></i> Overall best · Source progress</span></div>
+        <footer class="panel-footer"><span id="table-count">Waiting for race timing</span><span><i class="selection-dot a"></i> A <i class="selection-dot b"></i> B · Click a crew to compare</span></footer>
+      </section>
+      <section class="panel track-panel">
+        <header class="panel-header"><h2><span data-icon="map"></span>Track Map</h2><div class="map-actions"><span class="map-control-label">Mode</span><div class="segments map-mode" aria-label="Track map mode"><button data-map-mode="3d" aria-pressed="true">3D</button><button data-map-mode="2d" aria-pressed="false">2D</button></div><span class="map-control-label">View</span><div class="segments map-views" aria-label="Track map camera"><button data-map-view="global" aria-label="Global view" title="Global" aria-pressed="true"><span data-icon="globe"></span></button><button data-map-view="top" aria-label="Top-down view" title="Top-down" aria-pressed="false"><span data-icon="map"></span></button><button aria-label="Helicopter view unavailable" title="Helicopter view needs GPS positions" disabled><span data-icon="helicopter"></span></button><button aria-label="Chase view unavailable" title="Chase view needs GPS positions" disabled><span data-icon="car"></span></button><button aria-label="Onboard view unavailable" title="Onboard view needs GPS positions" disabled><span data-icon="driver"></span></button></div><button id="map-settings-button" aria-label="Open track map settings" aria-expanded="false" aria-controls="map-settings"><span data-icon="sliders"></span></button><button id="map-expand" aria-label="Expand track map" aria-pressed="false"><span data-icon="expand"></span></button></div></header>
+        <div class="map-viewport" id="map-viewport"><div id="geographic-map" role="region" aria-label="Interactive geographic map of Autódromo Internacional do Algarve"></div><svg id="track-map" viewBox="0 0 640 430" role="img" aria-label="Portimão circuit outline. Car positions are estimated from sector timing." hidden><g id="track-lines"></g></svg><div class="map-heading"><strong>Autódromo Internacional<br>do Algarve</strong><span>4.653 km · Portimão, Portugal</span></div><div id="map-loading" class="map-loading" role="status">Loading geographic map…</div><div id="map-error" class="map-error" role="status" hidden><strong>Geographic basemap unavailable</strong><span>The local circuit outline is still available.</span><button id="map-retry">Retry map</button></div><div class="map-zoom-controls"><button id="map-zoom-in" aria-label="Zoom in"><span data-icon="plus"></span></button><button id="map-fit" aria-label="Fit circuit to view"><span data-icon="locate"></span></button><button id="map-zoom-out" aria-label="Zoom out"><span data-icon="minus"></span></button></div><span id="map-position-status" class="map-position-status"><i></i>Waiting for race positions</span><span class="map-credit"><a href="https://github.com/bacinger/f1-circuits" target="_blank" rel="noopener noreferrer">Track · MIT</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OSM</a></span><div id="map-settings" class="map-settings" hidden><div><strong>Track map settings</strong><button id="map-settings-close" aria-label="Close track map settings"><span data-icon="close"></span></button></div><label>3D buildings<input id="map-buildings" type="checkbox" checked></label><label>Geographic labels<input id="map-labels" type="checkbox"></label><label>Lighting<select id="map-lighting" aria-label="Map lighting"><option value="realtime">Real time</option><option value="day">Day</option><option value="sunset">Sunset</option><option value="night">Night</option></select></label><p>Drag to move. Right-drag to rotate and tilt. Ctrl + scroll to zoom.</p></div></div>
+        <div class="track-bottom"><div><span>Race start</span><b><span id="track-start" class="track-metadata-value">—</span> <small>MSK</small></b></div><div><span>Duration</span><b id="track-duration">—</b></div><div><span>Field</span><b id="field-count">— <small>cars</small></b></div><div><span>Series</span><b id="track-series">—</b></div></div>
+      </section>
+    </div>
+    <div class="support-grid">
+      <section class="panel comparison-panel"><header class="panel-header"><h2><span data-icon="compare"></span>Lap comparison</h2><select id="lap-window" aria-label="Average pace lap window"><option value="3">Last 3 laps</option><option value="5" selected>Last 5 laps</option><option value="10">Last 10 laps</option></select></header><div class="comparison-controls"><label class="comparison-choice choice-a"><span id="comparison-label-a">A</span><select id="comparison-a" aria-label="Comparison crew A"><option value="3">#3 · Verstappen Racing</option></select></label><label class="comparison-choice choice-b"><span id="comparison-label-b">B</span><select id="comparison-b" aria-label="Comparison crew B"><option value="">Awaiting crew ahead of #3</option></select></label></div><div class="comparison-auto-control"><label><input id="comparison-auto" type="checkbox" checked> Auto: crew ahead of A</label></div><div id="comparison"></div></section>
+      <section class="panel"><header class="panel-header"><h2><span data-icon="flag"></span>Race Control</h2><span class="counter" id="messages-count">0</span></header><div id="race-control" class="panel-scroll"><div class="empty"><span data-icon="flag"></span><strong>Waiting for Race Control</strong><p>Official messages will appear here.</p></div></div></section>
+      <section class="panel"><header class="panel-header"><h2><span data-icon="pit"></span>Pit stops & driver changes</h2><span class="counter" id="pits-count">0</span></header><div id="pit-events" class="panel-scroll"><div class="empty"><span data-icon="pit"></span><strong>No stops observed</strong><p>History starts when the local server connects.</p></div></div></section>
+    </div>
+  </main>
+  <footer class="app-footer"><span id="connection-status"><i></i>Connecting</span><span id="last-update">Swiss Timing · SRO</span><span>Independent fan dashboard · Portimão 2026</span><button id="footer-sources">Data sources</button></footer>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <noscript><p class="notice">JavaScript is required to display the timing feed.</p></noscript>
+</body>
+</html>

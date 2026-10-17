@@ -1,0 +1,25 @@
+{
+  "license": "BSD-3-Clause",
+  "library": "MapLibre GL JS",
+  "files": [
+    {
+      "name": "LICENSE.txt",
+      "sha256": "EE5FC05A0677EAF69601D2C7DB0D9ECD6CC27C3ABC1D0733BC9ED34707CF8EF2"
+    },
+    {
+      "name": "maplibre-gl-csp-worker.js",
+      "sha256": "F950E7B15C49C8B9C7BB52136DF2A2DF2F6F03B83B8927774573FC98B067F7F0"
+    },
+    {
+      "name": "maplibre-gl-csp.js",
+      "sha256": "A1F1847BAC64AA00ACBF80FBB79B2C5AF24D8EECAAA5E2AD14080FAB81F1DE95"
+    },
+    {
+      "name": "maplibre-gl.css",
+      "sha256": "AB1E70D59EC40465BAE7E7030DA2F3CCF28133FD502E62BD598EEFBADFD7A732"
+    }
+  ],
+  "source": "https://github.com/maplibre/maplibre-gl-js/tree/v5.24.0",
+  "origin": "Installed npm maplibre-gl 5.24.0 in the sibling F1 project; copied as independent local assets",
+  "version": "5.24.0"
+}

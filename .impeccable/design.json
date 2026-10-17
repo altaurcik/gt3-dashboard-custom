@@ -1,0 +1,624 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17T07:21:45.602Z",
+  "title": "Design System: GT3 Dashboard Custom",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Фон",
+        "tonalRamp": [
+          "oklch(15.000% 0.03641 259.201)",
+          "oklch(26.429% 0.03641 259.201)",
+          "oklch(37.857% 0.03641 259.201)",
+          "oklch(49.286% 0.03641 259.201)",
+          "oklch(60.714% 0.03641 259.201)",
+          "oklch(72.143% 0.03641 259.201)",
+          "oklch(83.571% 0.03641 259.201)",
+          "oklch(95.000% 0.03641 259.201)"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Панель",
+        "tonalRamp": [
+          "oklch(15.000% 0.03641 259.201)",
+          "oklch(26.429% 0.03641 259.201)",
+          "oklch(37.857% 0.03641 259.201)",
+          "oklch(49.286% 0.03641 259.201)",
+          "oklch(60.714% 0.03641 259.201)",
+          "oklch(72.143% 0.03641 259.201)",
+          "oklch(83.571% 0.03641 259.201)",
+          "oklch(95.000% 0.03641 259.201)"
+        ]
+      },
+      "header": {
+        "role": "neutral",
+        "displayName": "Заголовок",
+        "tonalRamp": [
+          "oklch(15.000% 0.03520 263.190)",
+          "oklch(26.429% 0.03520 263.190)",
+          "oklch(37.857% 0.03520 263.190)",
+          "oklch(49.286% 0.03520 263.190)",
+          "oklch(60.714% 0.03520 263.190)",
+          "oklch(72.143% 0.03520 263.190)",
+          "oklch(83.571% 0.03520 263.190)",
+          "oklch(95.000% 0.03520 263.190)"
+        ]
+      },
+      "row": {
+        "role": "neutral",
+        "displayName": "Строка",
+        "tonalRamp": [
+          "oklch(15.000% 0.03982 265.755)",
+          "oklch(26.429% 0.03982 265.755)",
+          "oklch(37.857% 0.03982 265.755)",
+          "oklch(49.286% 0.03982 265.755)",
+          "oklch(60.714% 0.03982 265.755)",
+          "oklch(72.143% 0.03982 265.755)",
+          "oklch(83.571% 0.03982 265.755)",
+          "oklch(95.000% 0.03982 265.755)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Граница",
+        "tonalRamp": [
+          "oklch(15.000% 0.03685 260.031)",
+          "oklch(26.429% 0.03685 260.031)",
+          "oklch(37.857% 0.03685 260.031)",
+          "oklch(49.286% 0.03685 260.031)",
+          "oklch(60.714% 0.03685 260.031)",
+          "oklch(72.143% 0.03685 260.031)",
+          "oklch(83.571% 0.03685 260.031)",
+          "oklch(95.000% 0.03685 260.031)"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Основной текст",
+        "tonalRamp": [
+          "oklch(15.000% 0.00341 247.858)",
+          "oklch(26.429% 0.00341 247.858)",
+          "oklch(37.857% 0.00341 247.858)",
+          "oklch(49.286% 0.00341 247.858)",
+          "oklch(60.714% 0.00341 247.858)",
+          "oklch(72.143% 0.00341 247.858)",
+          "oklch(83.571% 0.00341 247.858)",
+          "oklch(95.000% 0.00341 247.858)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Приглушённый текст",
+        "tonalRamp": [
+          "oklch(15.000% 0.03511 256.788)",
+          "oklch(26.429% 0.03511 256.788)",
+          "oklch(37.857% 0.03511 256.788)",
+          "oklch(49.286% 0.03511 256.788)",
+          "oklch(60.714% 0.03511 256.788)",
+          "oklch(72.143% 0.03511 256.788)",
+          "oklch(83.571% 0.03511 256.788)",
+          "oklch(95.000% 0.03511 256.788)"
+        ]
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "Наведение",
+        "tonalRamp": [
+          "oklch(15.000% 0.03685 260.031)",
+          "oklch(26.429% 0.03685 260.031)",
+          "oklch(37.857% 0.03685 260.031)",
+          "oklch(49.286% 0.03685 260.031)",
+          "oklch(60.714% 0.03685 260.031)",
+          "oklch(72.143% 0.03685 260.031)",
+          "oklch(83.571% 0.03685 260.031)",
+          "oklch(95.000% 0.03685 260.031)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Сиреневый акцент",
+        "tonalRamp": [
+          "oklch(15.000% 0.17669 305.504)",
+          "oklch(26.429% 0.17669 305.504)",
+          "oklch(37.857% 0.17669 305.504)",
+          "oklch(49.286% 0.17669 305.504)",
+          "oklch(60.714% 0.17669 305.504)",
+          "oklch(72.143% 0.17669 305.504)",
+          "oklch(83.571% 0.17669 305.504)",
+          "oklch(95.000% 0.17669 305.504)"
+        ]
+      },
+      "a": {
+        "role": "secondary",
+        "displayName": "Голубой A",
+        "tonalRamp": [
+          "oklch(15.000% 0.10128 230.318)",
+          "oklch(26.429% 0.10128 230.318)",
+          "oklch(37.857% 0.10128 230.318)",
+          "oklch(49.286% 0.10128 230.318)",
+          "oklch(60.714% 0.10128 230.318)",
+          "oklch(72.143% 0.10128 230.318)",
+          "oklch(83.571% 0.10128 230.318)",
+          "oklch(95.000% 0.10128 230.318)"
+        ]
+      },
+      "b": {
+        "role": "secondary",
+        "displayName": "Розовый B",
+        "tonalRamp": [
+          "oklch(15.000% 0.13219 321.434)",
+          "oklch(26.429% 0.13219 321.434)",
+          "oklch(37.857% 0.13219 321.434)",
+          "oklch(49.286% 0.13219 321.434)",
+          "oklch(60.714% 0.13219 321.434)",
+          "oklch(72.143% 0.13219 321.434)",
+          "oklch(83.571% 0.13219 321.434)",
+          "oklch(95.000% 0.13219 321.434)"
+        ]
+      },
+      "positive": {
+        "role": "secondary",
+        "displayName": "Зелёный статус",
+        "tonalRamp": [
+          "oklch(15.000% 0.13627 154.449)",
+          "oklch(26.429% 0.13627 154.449)",
+          "oklch(37.857% 0.13627 154.449)",
+          "oklch(49.286% 0.13627 154.449)",
+          "oklch(60.714% 0.13627 154.449)",
+          "oklch(72.143% 0.13627 154.449)",
+          "oklch(83.571% 0.13627 154.449)",
+          "oklch(95.000% 0.13627 154.449)"
+        ]
+      },
+      "warning": {
+        "role": "secondary",
+        "displayName": "Жёлтый статус",
+        "tonalRamp": [
+          "oklch(15.000% 0.15342 91.605)",
+          "oklch(26.429% 0.15342 91.605)",
+          "oklch(37.857% 0.15342 91.605)",
+          "oklch(49.286% 0.15342 91.605)",
+          "oklch(60.714% 0.15342 91.605)",
+          "oklch(72.143% 0.15342 91.605)",
+          "oklch(83.571% 0.15342 91.605)",
+          "oklch(95.000% 0.15342 91.605)"
+        ]
+      },
+      "negative": {
+        "role": "secondary",
+        "displayName": "Красный статус",
+        "tonalRamp": [
+          "oklch(15.000% 0.10349 19.571)",
+          "oklch(26.429% 0.10349 19.571)",
+          "oklch(37.857% 0.10349 19.571)",
+          "oklch(49.286% 0.10349 19.571)",
+          "oklch(60.714% 0.10349 19.571)",
+          "oklch(72.143% 0.10349 19.571)",
+          "oklch(83.571% 0.10349 19.571)",
+          "oklch(95.000% 0.10349 19.571)"
+        ]
+      },
+      "map": {
+        "role": "neutral",
+        "displayName": "Карта",
+        "tonalRamp": [
+          "oklch(15.000% 0.03225 262.950)",
+          "oklch(26.429% 0.03225 262.950)",
+          "oklch(37.857% 0.03225 262.950)",
+          "oklch(49.286% 0.03225 262.950)",
+          "oklch(60.714% 0.03225 262.950)",
+          "oklch(72.143% 0.03225 262.950)",
+          "oklch(83.571% 0.03225 262.950)",
+          "oklch(95.000% 0.03225 262.950)"
+        ]
+      },
+      "light-bg": {
+        "role": "neutral",
+        "displayName": "Фон · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.00575 264.532)",
+          "oklch(26.429% 0.00575 264.532)",
+          "oklch(37.857% 0.00575 264.532)",
+          "oklch(49.286% 0.00575 264.532)",
+          "oklch(60.714% 0.00575 264.532)",
+          "oklch(72.143% 0.00575 264.532)",
+          "oklch(83.571% 0.00575 264.532)",
+          "oklch(95.000% 0.00575 264.532)"
+        ]
+      },
+      "light-panel": {
+        "role": "neutral",
+        "displayName": "Панель · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.00000 89.876)",
+          "oklch(26.429% 0.00000 89.876)",
+          "oklch(37.857% 0.00000 89.876)",
+          "oklch(49.286% 0.00000 89.876)",
+          "oklch(60.714% 0.00000 89.876)",
+          "oklch(72.143% 0.00000 89.876)",
+          "oklch(83.571% 0.00000 89.876)",
+          "oklch(95.000% 0.00000 89.876)"
+        ]
+      },
+      "light-header": {
+        "role": "neutral",
+        "displayName": "Заголовок · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.00453 258.324)",
+          "oklch(26.429% 0.00453 258.324)",
+          "oklch(37.857% 0.00453 258.324)",
+          "oklch(49.286% 0.00453 258.324)",
+          "oklch(60.714% 0.00453 258.324)",
+          "oklch(72.143% 0.00453 258.324)",
+          "oklch(83.571% 0.00453 258.324)",
+          "oklch(95.000% 0.00453 258.324)"
+        ]
+      },
+      "light-row": {
+        "role": "neutral",
+        "displayName": "Строка · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.00623 255.475)",
+          "oklch(26.429% 0.00623 255.475)",
+          "oklch(37.857% 0.00623 255.475)",
+          "oklch(49.286% 0.00623 255.475)",
+          "oklch(60.714% 0.00623 255.475)",
+          "oklch(72.143% 0.00623 255.475)",
+          "oklch(83.571% 0.00623 255.475)",
+          "oklch(95.000% 0.00623 255.475)"
+        ]
+      },
+      "light-border": {
+        "role": "neutral",
+        "displayName": "Граница · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.01811 261.335)",
+          "oklch(26.429% 0.01811 261.335)",
+          "oklch(37.857% 0.01811 261.335)",
+          "oklch(49.286% 0.01811 261.335)",
+          "oklch(60.714% 0.01811 261.335)",
+          "oklch(72.143% 0.01811 261.335)",
+          "oklch(83.571% 0.01811 261.335)",
+          "oklch(95.000% 0.01811 261.335)"
+        ]
+      },
+      "light-text": {
+        "role": "neutral",
+        "displayName": "Основной текст · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.04576 260.463)",
+          "oklch(26.429% 0.04576 260.463)",
+          "oklch(37.857% 0.04576 260.463)",
+          "oklch(49.286% 0.04576 260.463)",
+          "oklch(60.714% 0.04576 260.463)",
+          "oklch(72.143% 0.04576 260.463)",
+          "oklch(83.571% 0.04576 260.463)",
+          "oklch(95.000% 0.04576 260.463)"
+        ]
+      },
+      "light-muted": {
+        "role": "neutral",
+        "displayName": "Приглушённый текст · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.04025 252.529)",
+          "oklch(26.429% 0.04025 252.529)",
+          "oklch(37.857% 0.04025 252.529)",
+          "oklch(49.286% 0.04025 252.529)",
+          "oklch(60.714% 0.04025 252.529)",
+          "oklch(72.143% 0.04025 252.529)",
+          "oklch(83.571% 0.04025 252.529)",
+          "oklch(95.000% 0.04025 252.529)"
+        ]
+      },
+      "light-hover": {
+        "role": "neutral",
+        "displayName": "Наведение · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.01259 255.507)",
+          "oklch(26.429% 0.01259 255.507)",
+          "oklch(37.857% 0.01259 255.507)",
+          "oklch(49.286% 0.01259 255.507)",
+          "oklch(60.714% 0.01259 255.507)",
+          "oklch(72.143% 0.01259 255.507)",
+          "oklch(83.571% 0.01259 255.507)",
+          "oklch(95.000% 0.01259 255.507)"
+        ]
+      },
+      "light-accent": {
+        "role": "primary",
+        "displayName": "Сиреневый акцент · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.23687 301.924)",
+          "oklch(26.429% 0.23687 301.924)",
+          "oklch(37.857% 0.23687 301.924)",
+          "oklch(49.286% 0.23687 301.924)",
+          "oklch(60.714% 0.23687 301.924)",
+          "oklch(72.143% 0.23687 301.924)",
+          "oklch(83.571% 0.23687 301.924)",
+          "oklch(95.000% 0.23687 301.924)"
+        ]
+      },
+      "light-a": {
+        "role": "secondary",
+        "displayName": "Голубой A · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.11929 242.749)",
+          "oklch(26.429% 0.11929 242.749)",
+          "oklch(37.857% 0.11929 242.749)",
+          "oklch(49.286% 0.11929 242.749)",
+          "oklch(60.714% 0.11929 242.749)",
+          "oklch(72.143% 0.11929 242.749)",
+          "oklch(83.571% 0.11929 242.749)",
+          "oklch(95.000% 0.11929 242.749)"
+        ]
+      },
+      "light-b": {
+        "role": "secondary",
+        "displayName": "Розовый B · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.22580 323.949)",
+          "oklch(26.429% 0.22580 323.949)",
+          "oklch(37.857% 0.22580 323.949)",
+          "oklch(49.286% 0.22580 323.949)",
+          "oklch(60.714% 0.22580 323.949)",
+          "oklch(72.143% 0.22580 323.949)",
+          "oklch(83.571% 0.22580 323.949)",
+          "oklch(95.000% 0.22580 323.949)"
+        ]
+      },
+      "light-positive": {
+        "role": "secondary",
+        "displayName": "Зелёный статус · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.10832 151.328)",
+          "oklch(26.429% 0.10832 151.328)",
+          "oklch(37.857% 0.10832 151.328)",
+          "oklch(49.286% 0.10832 151.328)",
+          "oklch(60.714% 0.10832 151.328)",
+          "oklch(72.143% 0.10832 151.328)",
+          "oklch(83.571% 0.10832 151.328)",
+          "oklch(95.000% 0.10832 151.328)"
+        ]
+      },
+      "light-warning": {
+        "role": "secondary",
+        "displayName": "Жёлтый статус · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.10337 61.907)",
+          "oklch(26.429% 0.10337 61.907)",
+          "oklch(37.857% 0.10337 61.907)",
+          "oklch(49.286% 0.10337 61.907)",
+          "oklch(60.714% 0.10337 61.907)",
+          "oklch(72.143% 0.10337 61.907)",
+          "oklch(83.571% 0.10337 61.907)",
+          "oklch(95.000% 0.10337 61.907)"
+        ]
+      },
+      "light-negative": {
+        "role": "secondary",
+        "displayName": "Красный статус · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.19049 27.518)",
+          "oklch(26.429% 0.19049 27.518)",
+          "oklch(37.857% 0.19049 27.518)",
+          "oklch(49.286% 0.19049 27.518)",
+          "oklch(60.714% 0.19049 27.518)",
+          "oklch(72.143% 0.19049 27.518)",
+          "oklch(83.571% 0.19049 27.518)",
+          "oklch(95.000% 0.19049 27.518)"
+        ]
+      },
+      "light-map": {
+        "role": "neutral",
+        "displayName": "Карта · светлая тема",
+        "tonalRamp": [
+          "oklch(15.000% 0.00797 253.854)",
+          "oklch(26.429% 0.00797 253.854)",
+          "oklch(37.857% 0.00797 253.854)",
+          "oklch(49.286% 0.00797 253.854)",
+          "oklch(60.714% 0.00797 253.854)",
+          "oklch(72.143% 0.00797 253.854)",
+          "oklch(83.571% 0.00797 253.854)",
+          "oklch(95.000% 0.00797 253.854)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "headline",
+        "purpose": "Название события"
+      },
+      "title": {
+        "displayName": "title",
+        "purpose": "Заголовки панелей"
+      },
+      "body": {
+        "displayName": "body",
+        "purpose": "Имена и управление"
+      },
+      "label": {
+        "displayName": "label",
+        "purpose": "Функциональные подписи не меньше 11px"
+      },
+      "timing": {
+        "displayName": "timing",
+        "purpose": "Время и числовые показатели"
+      },
+      "clock": {
+        "displayName": "clock",
+        "purpose": "Часы события"
+      }
+    },
+    "shadows": [
+      {
+        "name": "popover",
+        "value": "0 12px 35px #0005",
+        "purpose": "Меню Layout / TV Sync"
+      },
+      {
+        "name": "toast",
+        "value": "0 6px 25px #0005",
+        "purpose": "Уведомление"
+      },
+      {
+        "name": "selection-a",
+        "value": "inset 2px 0 0 var(--a)",
+        "purpose": "Строка A"
+      },
+      {
+        "name": "selection-b",
+        "value": "inset 2px 0 0 var(--b)",
+        "purpose": "Строка B"
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-state",
+        "value": "background .15s, color .15s",
+        "purpose": "Состояния кнопок; отключается при reduced motion"
+      },
+      {
+        "name": "row-state",
+        "value": "background .15s",
+        "purpose": "Строки; отключается при reduced motion"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1700px"
+      },
+      {
+        "name": "medium-max",
+        "value": "1150px"
+      },
+      {
+        "name": "single-column-max",
+        "value": "800px"
+      },
+      {
+        "name": "mobile-max",
+        "value": "480px"
+      }
+    ],
+    "geographicMap": {
+      "renderer": "MapLibre GL JS 5.24.0",
+      "styleUrl": "https://tiles.openfreemap.org/styles/positron",
+      "sourceReference": "../f1-dashboard-custom/src/components/live/GeographicTrackScene.tsx",
+      "colors": {
+        "background": "#181818",
+        "land": "#252525",
+        "contextLine": "#4b4b4b",
+        "building": "#383838",
+        "circuitEdge": "#f1f5f9",
+        "circuitRoad": "#3f4148"
+      },
+      "camera": {
+        "global": {
+          "pitch": 48,
+          "bearing": -20
+        },
+        "top": {
+          "pitch": 0,
+          "bearing": 0
+        }
+      },
+      "modes": [
+        "3d",
+        "2d"
+      ],
+      "positionMarkers": "Unavailable until a public GPS source or validated timing calibration exists"
+    }
+  },
+  "components": [
+    {
+      "name": "Прозрачная кнопка",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Базовое управление.",
+      "html": "<button class=\"ds-ghost\">TV Sync</button>",
+      "css": ".ds-ghost{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;padding:6px 9px;border:0;border-radius:5px;background:transparent;color:var(--text,#f8fafc);font:12px/1.4 Geist,system-ui,sans-serif;cursor:pointer;transition:background .15s,color .15s;}.ds-ghost:hover{background:var(--hover,#1e293b)}.ds-ghost:focus-visible{outline:2px solid var(--a,#7dd3fc);outline-offset:3px}.ds-ghost:disabled{opacity:.45;cursor:default}@media(prefers-reduced-motion:reduce){.ds-ghost{transition:none}}"
+    },
+    {
+      "name": "Поиск экипажа",
+      "kind": "input",
+      "refersTo": "search-input",
+      "description": "Прозрачное поле инструментов таблицы.",
+      "html": "<label class=\"ds-search\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m16 16 4 4\"/></svg><input type=\"search\" placeholder=\"Car, driver, team\" aria-label=\"Search car, driver or team\"></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:6px;color:var(--muted,#94a3b8)}.ds-search svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7}.ds-search input{width:122px;padding:5px 2px;background:transparent;border:0;color:var(--text,#f8fafc);font:11px/1.4 Geist,system-ui,sans-serif;caret-color:var(--accent,#c084fc)}.ds-search input::placeholder{color:var(--muted,#94a3b8)}.ds-search input:focus-visible{outline:2px solid var(--a,#7dd3fc);outline-offset:3px}"
+    },
+    {
+      "name": "Верхнее управление",
+      "kind": "nav",
+      "refersTo": "button-ghost",
+      "description": "Горизонтальное управление без боковой панели.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Dashboard controls\"><button aria-expanded=\"false\">Layout</button><button aria-expanded=\"false\">TV Sync</button></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:7px;padding:0 16px;height:51px;background:var(--header,#0a1222);border-bottom:1px solid var(--border,#1e293b)}.ds-nav button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;padding:6px 9px;border:0;border-radius:5px;background:transparent;color:var(--text,#f8fafc);font:12px/1.4 Geist,system-ui,sans-serif;cursor:pointer;transition:background .15s,color .15s;}.ds-nav button:hover{background:var(--hover,#1e293b)}.ds-nav button:focus-visible{outline:2px solid var(--a,#7dd3fc);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-nav button{transition:none}}"
+    },
+    {
+      "name": "Бейдж сессии",
+      "kind": "chip",
+      "refersTo": "flag-badge",
+      "description": "Явное нейтральное состояние завершённой сессии.",
+      "html": "<span class=\"ds-flag\">COMPLETED</span>",
+      "css": ".ds-flag{display:inline-block;padding:4px 7px;border:1px solid var(--border,#1e293b);border-radius:4px;font:600 11px/1.4 Geist,system-ui,sans-serif;color:var(--muted,#94a3b8);white-space:nowrap}"
+    },
+    {
+      "name": "Панель",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Заголовок и реальное пустое состояние.",
+      "html": "<section class=\"ds-panel\"><header class=\"ds-panel-header\"><h2>Race Control</h2></header><div class=\"ds-empty\"><strong>Waiting for Race Control</strong><p>Official messages will appear here.</p></div></section>",
+      "css": ".ds-panel{border:1px solid var(--border,#1e293b);background:var(--panel,#020817);color:var(--text,#f8fafc);min-width:0;overflow:hidden;border-radius:6px;font:12px/1.4 Geist,system-ui,sans-serif}.ds-panel-header{display:flex;align-items:center;justify-content:space-between;gap:10px;height:44px;min-height:44px;padding:6px 12px;box-sizing:border-box;border-bottom:1px solid var(--border,#1e293b);background:var(--header,#0a1222)}.ds-panel-header h2{margin:0;font-size:12px;font-weight:600}.ds-empty{min-height:150px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px;padding:20px;color:var(--muted,#94a3b8)}.ds-empty strong{font-size:11px;font-weight:500;color:var(--text,#f8fafc)}.ds-empty p{margin:0;font-size:11px;max-width:260px;line-height:1.6}"
+    },
+    {
+      "name": "TV Sync",
+      "kind": "custom",
+      "refersTo": "popover",
+      "description": "Меню и числовое поле задержки; положение в приложении описано в DESIGN.md.",
+      "html": "<div class=\"ds-popover\"><strong>TV Sync</strong><p>Delay the timing to match your broadcast.</p><label>Delay <input type=\"number\" min=\"0\" max=\"120\" value=\"0\" aria-label=\"Delay in seconds\"> sec</label><p>Applies to data received while this page is open.</p></div>",
+      "css": ".ds-popover{padding:14px;width:250px;max-width:calc(100vw - 24px);box-sizing:border-box;background:var(--header,#0a1222);color:var(--text,#f8fafc);border:1px solid var(--border,#1e293b);border-radius:8px;box-shadow:0 12px 35px #0005;font:12px/1.4 Geist,system-ui,sans-serif}.ds-popover>strong{display:block;margin-bottom:10px}.ds-popover p{color:var(--muted,#94a3b8);margin:8px 0}.ds-popover label{display:flex;align-items:center;gap:9px;margin-top:12px}.ds-popover input{width:70px;box-sizing:border-box;border:1px solid var(--border,#1e293b);background:var(--bg,#020817);color:var(--text,#f8fafc);padding:8px;border-radius:4px;font:inherit}.ds-popover input:focus-visible{outline:2px solid var(--a,#7dd3fc);outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Тот же стиль F1 Dashboard Custom",
+    "overview": "Система сохраняет подтверждённый пользователем визуальный язык F1 Dashboard Custom: плотные таблицы, небольшие радиусы, тёмную и светлую темы, панельную компоновку без боковой навигации. Документ фиксирует работающий интерфейс; новое визуальное направление не вводится.\n\nИерархию задают заголовки панелей, тонкие границы и цветовые состояния. Geist обслуживает названия и управление, GeistMono — времена и числовые показатели. Поверхности спокойные, данные занимают основное пространство.",
+    "keyCharacteristics": [
+      "Плотная таблица с горизонтальной прокруткой.",
+      "Небольшие радиусы и тонкие границы.",
+      "Одинаковые роли компонентов в обеих темах.",
+      "Явные состояния завершённой сессии и отсутствующих данных."
+    ],
+    "rules": [
+      {
+        "name": "The Inherited System Rule",
+        "body": "Сохранять палитру, Geist, плотность и отсутствие боковой навигации подтверждённого F1-референса.",
+        "section": "colors"
+      },
+      {
+        "name": "The Readable Density Rule",
+        "body": "Таблица и основные имена остаются размером (12px), функциональные подписи — не меньше (11px); на узком экране прокручивать таблицу, а не уменьшать текст.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Panel Rule",
+        "body": "Панели разделяются фоном и границей; внешние тени используются у всплывающих меню и уведомления.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do сохранять семантические роли цветов в тёмной и светлой темах.",
+      "Do использовать заголовки панелей высотой (44px), радиус панели (6px) и межпанельные отступы (8px).",
+      "Do сохранять горизонтальную прокрутку таблицы и видимый клавиатурный фокус.",
+      "Do явно показывать completed, unavailable и границы наблюдаемой истории."
+    ],
+    "donts": [
+      "Don't вводить боковую навигацию или менять унаследованные шрифты без нового запроса.",
+      "Don't уменьшать функциональные подписи ниже (11px) ради размещения данных.",
+      "Don't рисовать GPS-машины, вымышленные секторы, радио, шины, погоду или другую отсутствующую телеметрию.",
+      "Don't загружать или показывать квалификацию в гоночном дашборде, включая её старый кэш."
+    ]
+  }
+}

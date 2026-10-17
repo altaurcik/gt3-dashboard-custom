@@ -1,0 +1,38 @@
+{
+  "checkedAt": "2026-10-17T07:14:55.6127509Z",
+  "raceAvailable": false,
+  "liveRaceVerified": false,
+  "favorite": {
+    "number": "3",
+    "position": 14,
+    "average": "1:42.624"
+  },
+  "source": {
+    "name": "Swiss Timing · SRO",
+    "url": "https://ps-cache.web.swisstiming.com/node/db/RAC_PROD/SRO_2026_TIMING_D9A0680A-07DB-4DD4-9E41-A47D1CD4FC2A_JSON.json",
+    "uid": 279,
+    "receivedAt": 1792221295032,
+    "changedAt": 1792221110174,
+    "connection": "connected",
+    "error": null
+  },
+  "geometry": {
+    "source": "https://github.com/bacinger/f1-circuits/blob/632100bd6adcbd1c4c4afb4d7439a08ec7196d74/circuits/pt-2008.geojson",
+    "layout": "pt-2008",
+    "lengthMetres": 4653,
+    "sha256": "4F91188BCE72D64A6D4767F5AE957D253439681442EFD1E72937D4221CC703C2"
+  },
+  "cars": 61,
+  "session": {
+    "id": "d9a0680a-07db-4dd4-9e41-a47d1cd4fc2a",
+    "name": "Combined Qualifying",
+    "code": "CQ",
+    "type": 6,
+    "state": 2,
+    "mode": "qualifying",
+    "remaining": "1:10:00",
+    "startRealTime": null,
+    "flag": "UNKNOWN",
+    "complete": true
+  }
+}

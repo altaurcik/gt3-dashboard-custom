@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-17",
+  "circuit": "Autodromo Internacional do Algarve, 4653 m",
+  "method": "Timing sector progress, not GPS",
+  "direction": "Increasing GeoJSON point order; northbound on main straight toward T1",
+  "finish": { "longitude": -8.6299791, "latitude": 37.2298018, "osmNode": 5006070798, "osmVersion": 3 },
+  "start": { "longitude": -8.6308098, "latitude": 37.2321164, "osmNode": 5006082198, "osmVersion": 2 },
+  "sectorMetresFromFinish": [0, 1616.4, 2977.2, 4653],
+  "startLineOffsetMetres": 268,
+  "sources": [
+    "https://api.openstreetmap.org/api/0.6/map?bbox=-8.633,37.229,-8.628,37.234",
+    "https://www.openstreetmap.org/node/5006070798",
+    "https://www.openstreetmap.org/node/5006082198",
+    "https://www.gt-world-challenge-europe.com/get_noticedocument?noticedocument_id=11329",
+    "https://www.gt-world-challenge-europe.com/get_noticedocument?noticedocument_id=11328"
+  ],
+  "attribution": "Calibration coordinates: OpenStreetMap contributors, ODbL; circuit geometry: bacinger/f1-circuits, MIT; sector distances: SRO Portimao 2026 briefing",
+  "verification": "Finish node projected to circuit; start node agrees with +268 m, S1 near T5 approach, S2 near T10 entry. Main-straight paint and buildings checked against SRO photographs and Esri World Imagery.",
+  "limits": "Geometry calibration is not a claim of metre-accurate car positions. Public GPS and pit-lane trajectory are unavailable."
+}

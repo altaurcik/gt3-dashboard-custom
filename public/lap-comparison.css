@@ -1,0 +1,20 @@
+.comparison-choice>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:16px}
+.comparison-verdict{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 12px;padding:10px 14px 12px;border-top:1px solid var(--border)}
+.comparison-verdict strong{font-size:12px;font-weight:500}
+.comparison-verdict>span{font-size:11px;color:var(--muted)}
+.winner-a,.side-a{color:var(--a)}.winner-b,.side-b{color:var(--b)}
+.lap-comparison-scroll{margin:0 14px 14px;max-height:390px;overflow:auto}
+.lap-comparison-table{min-width:330px;width:100%;table-layout:fixed;font-variant-numeric:tabular-nums}
+.lap-comparison-table .lap-label-col{width:88px}.lap-comparison-table .lap-delta-col{width:82px}
+.lap-comparison-table th,.lap-comparison-table td{height:34px;padding:7px 8px;text-align:right;letter-spacing:normal;font:12px/1.4 GeistMono,monospace;border-bottom:1px solid var(--border)}
+.lap-comparison-table th:first-child{text-align:left;color:var(--muted)}
+.lap-comparison-table thead th{font:11px/1.4 Geist,system-ui,sans-serif;background:var(--header)}
+.lap-comparison-table tfoot th{font:11px/1.4 Geist,system-ui,sans-serif;white-space:normal}
+.lap-comparison-table tfoot{background:var(--header)}
+.lap-comparison-table .matched-average td{font-weight:600}
+.lap-comparison-table .lap-winner[data-side=a]{color:var(--a);background:color-mix(in srgb,var(--a) 7%,var(--panel))}
+.lap-comparison-table .lap-winner[data-side=b]{color:var(--b);background:color-mix(in srgb,var(--b) 7%,var(--panel))}
+.lap-comparison-table sup{color:var(--muted);font:11px Geist,system-ui,sans-serif;margin-left:2px}
+.lap-comparison-table .lap-waiting{text-align:center;color:var(--muted);font:12px Geist,system-ui,sans-serif;height:70px;white-space:normal}
+.lap-exclusions{padding:0 14px 12px;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:480px){.lap-comparison-scroll{margin-left:8px;margin-right:8px}.comparison-verdict,.lap-exclusions{padding-left:10px;padding-right:10px}.lap-comparison-table .lap-delta-col{width:74px}.lap-comparison-table th,.lap-comparison-table td{padding-left:5px;padding-right:5px}}

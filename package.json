@@ -1,0 +1,14 @@
+{
+  "name": "gt3-dashboard-custom",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent GT World Challenge live timing dashboard",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "test": "node --test tools/*.test.mjs",
+    "check": "node --check server.mjs && node --check src/provider.mjs && node --check src/session-selection.mjs && node --check src/swiss-push.mjs && node --check src/normalize.mjs && node --check public/app.js && node --check public/race-metrics.js && node --check public/race-control.js && node --check public/pit-events.js && node --check public/class-filter.js && node --check public/comparison-selection.js && node --check public/lap-comparison.js && node --check public/track-positions.js && node --check public/track-map.js && node --check tools/update-entry-list.mjs"
+  }
+}
