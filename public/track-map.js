@@ -39,6 +39,9 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
   const markerLayer = document.createElement("div"); markerLayer.className = "map-car-layer";
   const pitStatus = document.createElement("span"); pitStatus.className = "map-pit-status"; pitStatus.hidden = true;
   viewport.append(markerLayer, pitStatus);
+  const attributionRow = document.createElement("div"); attributionRow.className = "map-attribution-row";
+  const providerAttribution = document.createElement("div"); providerAttribution.className = "map-provider-attribution";
+  attributionRow.append($(".map-credit"), providerAttribution); viewport.after(attributionRow);
   let circuitPath = null, project2d = null, selected = [], paused = false, delay = 0, positionFrame = 0, frozenForStale = false;
   let projectionDirty = true, projectionBox = null, projectionMatrix = null;
   let metricsAt = 0, metricsFrames = 0, metricsCost = 0, metricsPeak = 0;
@@ -113,11 +116,17 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
       : reducedMotion() ? `Estimated · ${list.length} cars` : replayText;
     const statusState = !snapshot?.raceAvailable ? "pending" : paused ? "paused" : !fresh ? "stale" : "estimated";
     if (status.dataset.state !== statusState) status.dataset.state = statusState;
-    if (status.lastChild.textContent !== text) status.lastChild.textContent = text;
-    if (!status.title) status.title = "Estimated, not GPS. Completed sectors are replayed over their measured times on a shared race clock, about one measured sector behind. Only the latest normal sector times set the delay; isolated pit/formation outliers and old history do not. No delivery reserve is added. Missing sectors may require buffering; reported positions remain visible.";
+    const compactText = !snapshot?.raceAvailable ? "Awaiting race" : !circuitPath ? "Calibrating…" : snapshot.session.state === 0 ? "Awaiting start"
+      : paused ? "PAUSED" : snapshot.session.complete ? "Finished" : !fresh ? "Data stale"
+      : list.some((item) => item.replaying) ? `~${Math.ceil(replayDelay ?? 0)}s delay${list.some((item) => !item.replaying) ? " · buffering" : ""}` : reducedMotion() ? "Estimated" : "Buffering sectors";
+    if (status.lastChild.textContent !== compactText) status.lastChild.textContent = compactText;
+    const statusTitle = `${text}. Estimated, not GPS. Completed sectors are replayed over their measured times. No delivery reserve is added.`;
+    if (status.title !== statusTitle) status.title = statusTitle;
     const pits = snapshot?.rows?.filter((row) => row.inPit === true).map((row) => `#${row.number}`) ?? [];
     pitStatus.hidden = !pits.length;
-    const pitText = `PIT · ${pits.slice(0, 5).join(" ")}${pits.length > 5 ? ` +${pits.length - 5}` : ""}`;
+    const priority = [...selected.filter(Boolean), ...(snapshot?.event?.isVerstappenRace ? ["3"] : [])].map((number) => `#${number}`);
+    const pitOrder = [...new Set([...priority.filter((number) => pits.includes(number)), ...pits])];
+    const pitText = `PIT · ${pitOrder.slice(0, 2).join(" ")}${pits.length > 2 ? ` +${pits.length - 2}` : ""}`;
     if (pitStatus.textContent !== pitText) pitStatus.textContent = pitText;
     const pitTitle = pits.join(" · "); if (pitStatus.title !== pitTitle) pitStatus.title = pitTitle;
   }
@@ -139,6 +148,7 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
 
   function updateControls() {
     projectionDirty = true;
+    providerAttribution.hidden = state.mode !== "3d";
     document.querySelectorAll("[data-map-mode]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.mapMode === state.mode)));
     document.querySelectorAll("[data-map-view]").forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.mapView === state.view)); button.disabled = state.mode !== "3d";
@@ -181,7 +191,8 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
     zoom2d = 1; draw2d();
     if (map && bounds) {
       map.resize();
-      const padding = Math.min(42, Math.max(8, (viewport.clientHeight - 140) / 4));
+      const verticalPadding = Math.min(42, Math.max(8, (viewport.clientHeight - 140) / 4));
+      const padding = { top: verticalPadding, bottom: verticalPadding, left: Math.min(184, viewport.clientWidth * .48), right: 50 };
       map.fitBounds(bounds, { padding,
         pitch: state.view === "top" ? 0 : 48, bearing: state.view === "top" ? 0 : -20,
         duration: animate ? duration() : 0, maxZoom: 17 });
@@ -234,8 +245,11 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
       if (disposed || currentGeneration !== generation) return;
       map = new library.Map({ container: mapContainer, style, center: [(bounds[0][0] + bounds[1][0]) / 2, (bounds[0][1] + bounds[1][1]) / 2],
         zoom: 14.5, pitch: state.view === "top" ? 0 : 48, bearing: state.view === "top" ? 0 : -20,
-        maxPitch: 85, minZoom: 11, maxZoom: 20, attributionControl: { compact: true },
+        maxPitch: 85, minZoom: 11, maxZoom: 20, attributionControl: false,
         canvasContextAttributes: { antialias: true } });
+      const attribution = new library.AttributionControl({ compact: false });
+      map.addControl(attribution, "bottom-right");
+      providerAttribution.append(mapContainer.querySelector(".maplibregl-ctrl-attrib"));
       map.getCanvas().setAttribute("aria-label", "Circuit map. Arrow keys pan; plus and minus zoom. Shift and arrow keys rotate or tilt.");
       map.scrollZoom.disable();
       listen(map.getCanvas(), "wheel", (event) => {
@@ -351,7 +365,7 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
       if (value.paused && !paused) positions.freeze(performance.now());
       paused = value.paused; delay = value.delay ?? 0; drawPositions();
     },
-    destroy() { disposed = true; events.abort(); resize.disconnect(); cancelAnimationFrame(resizeFrame); cancelAnimationFrame(positionFrame); markerLayer.remove(); pitStatus.remove(); if (expanded) document.body.style.overflow = priorOverflow; if (map) map.remove(); },
+    destroy() { disposed = true; events.abort(); resize.disconnect(); cancelAnimationFrame(resizeFrame); cancelAnimationFrame(positionFrame); markerLayer.remove(); pitStatus.remove(); if (expanded) document.body.style.overflow = priorOverflow; if (map) map.remove(); attributionRow.remove(); },
   };
 }
 import { buildCircuitPath, TimingPositions } from "./track-positions.js";

@@ -80,6 +80,8 @@ JSON, а не зафиксированный первоначальный PDF. �
 - [OpenFreeMap](https://openfreemap.org/quick_start/), Positron:
   `https://tiles.openfreemap.org/styles/positron`; векторные тайлы, здания, glyphs и атрибуция
   OSM/OpenMapTiles/OpenFreeMap. Подложка требует сети, аккаунт/API-ключ не требуется.
+  Атрибуция того же штатного MapLibre AttributionControl размещена под canvas, без
+  удаления ссылок или текста; на трассе она больше не перекрывает позиции машин.
 - [Event Notes SRO №11](https://www.gt-world-challenge-europe.com/get_noticedocument?noticedocument_id=11328)
   и [Briefing №13](https://www.gt-world-challenge-europe.com/get_noticedocument?noticedocument_id=11329)
   именно Portimão 2026: длина 4653 м, отсечки 1616,4/2977,2 м, смещение стартовой линии 268 м.
