@@ -114,7 +114,7 @@ export function createTrackMap({ preferences = {}, onChange = () => {}, onSelect
     const statusState = !snapshot?.raceAvailable ? "pending" : paused ? "paused" : !fresh ? "stale" : "estimated";
     if (status.dataset.state !== statusState) status.dataset.state = statusState;
     if (status.lastChild.textContent !== text) status.lastChild.textContent = text;
-    if (!status.title) status.title = "Estimated, not GPS. Completed sectors are replayed over their measured times, about one sector behind the timing table. All cars share a race clock; a sector-sized buffer plus delivery margin absorbs sparse updates. Missing sectors may require buffering. Pit, retired and unknown positions are omitted.";
+    if (!status.title) status.title = "Estimated, not GPS. Completed sectors are replayed over their measured times on a shared race clock, about one measured sector behind. Only the latest normal sector times set the delay; isolated pit/formation outliers and old history do not. No delivery reserve is added. Missing sectors may require buffering; reported positions remain visible.";
     const pits = snapshot?.rows?.filter((row) => row.inPit === true).map((row) => `#${row.number}`) ?? [];
     pitStatus.hidden = !pits.length;
     const pitText = `PIT · ${pits.slice(0, 5).join(" ")}${pits.length > 5 ? ` +${pits.length - 5}` : ""}`;

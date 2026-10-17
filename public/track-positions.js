@@ -70,21 +70,38 @@ export function completedSectorSegments(row) {
   return segments;
 }
 
+// Use only the latest measurement of each real sector per car. The field median
+// rejects isolated pit/formation delays before selecting a typical upper duration
+// for each sector. Neither accumulated history nor a delivery reserve is added.
+export function measuredReplayDelayMs(cars) {
+  const groups = [[], [], []];
+  for (const state of cars) for (let index = 0; index < 3; index++) {
+    const segment = state.segments.findLast((item) => item.key.endsWith(`:${index}`));
+    if (segment) groups[index].push(segment.end - segment.start);
+  }
+  const all = groups.flat().sort((a, b) => a - b);
+  if (!all.length) return null;
+  const median = all[Math.floor((all.length - 1) / 2)];
+  const typical = groups.map((values) => {
+    const normal = values.filter((duration) => duration <= median * 1.5).sort((a, b) => a - b);
+    return normal[Math.ceil(normal.length * .95) - 1] ?? 0;
+  });
+  return Math.max(...typical);
+}
+
 export class TimingPositions {
   constructor() { this.reset(); }
   reset() {
     this.session = null; this.cars = new Map(); this.playhead = null;
     this.clock = null; this.lastFrame = null;
-    this.running = false; this.bufferMs = 0; this.targetBufferMs = 0; this.latestEnd = null;
+    this.running = false; this.latestEnd = null;
     this.startRealTime = null; this.active = false;
+    this.replayDelayMs = null;
   }
   advance(now) {
     if (this.running && this.lastFrame !== null && this.playhead !== null) {
       const elapsed = Math.max(0, now - this.lastFrame);
-      // Grow a buffer without rewinding or stopping all cars if caution sectors
-      // become longer. Once filled, replay runs at the measured sector speed.
-      const growth = Math.min(Math.max(0, this.targetBufferMs - this.bufferMs), elapsed * .15);
-      this.bufferMs += growth; this.playhead += elapsed - growth;
+      this.playhead += elapsed;
     }
     this.lastFrame = now;
   }
@@ -94,9 +111,10 @@ export class TimingPositions {
     if (snapshot.session.id !== this.session) { this.reset(); this.session = snapshot.session.id; }
     this.advance(now);
     const active = snapshot.session.state === 1 && !snapshot.session.complete;
+    const running = active && fresh && !reduced && !["RED", "UNKNOWN"].includes(snapshot.session.flag);
     const present = new Set();
     let newest = null;
-    const durations = [];
+    let hasSegments = false;
     for (const row of snapshot.rows) {
       if (!positionEligible(row)) continue;
       present.add(row.number);
@@ -111,19 +129,18 @@ export class TimingPositions {
         segments.set(segment.key, segment); newest = Math.max(newest ?? 0, segment.end);
       }
       const ordered = [...segments.values()].sort((a, b) => a.start - b.start).slice(-12);
-      // Old formation laps and a single pit-delayed car must not delay the field.
-      for (const segment of ordered.slice(-3)) durations.push(segment.end - segment.start);
+      hasSegments ||= ordered.length > 0;
       this.cars.set(row.number, { row, segments: ordered, displayed: validHistory ? old.displayed : undefined, staticDistance: sectorDistance(row.progress) });
     }
     for (const number of this.cars.keys()) if (!present.has(number)) this.cars.delete(number);
     // A TV Sync seek backwards, reconnect or long inactive tab starts a new buffer.
-    durations.sort((a, b) => a - b);
-    this.targetBufferMs = (durations[Math.ceil(durations.length * .95) - 1] ?? 0) + 8000;
     const seek = newest !== null && this.latestEnd !== null && newest < this.latestEnd - 2000;
     const reconnect = newest !== null && this.latestEnd !== null && newest > this.latestEnd && this.playhead > newest + 20000;
     const raceStarted = snapshot.session.startRealTime && snapshot.session.startRealTime !== this.startRealTime;
-    const excessiveBuffer = this.bufferMs > this.targetBufferMs * 1.75;
-    if (seek || reconnect || (raceStarted && this.clock) || excessiveBuffer) {
+    const resumed = running && !this.running && this.clock;
+    const measuredDelay = measuredReplayDelayMs(this.cars.values());
+    const sectorChanged = measuredDelay !== null && this.replayDelayMs !== null && Math.abs(measuredDelay - this.replayDelayMs) > 2000;
+    if (seek || reconnect || (raceStarted && this.clock) || resumed || sectorChanged) {
       for (const state of this.cars.values()) {
         if (seek || reconnect || raceStarted) state.segments = completedSectorSegments(state.row);
         state.displayed = undefined;
@@ -132,13 +149,14 @@ export class TimingPositions {
     }
     this.startRealTime = snapshot.session.startRealTime ?? null;
     this.latestEnd = newest;
-    if (active && durations.length && newest !== null && this.playhead === null) {
-      this.bufferMs = this.targetBufferMs; this.playhead = newest - this.bufferMs;
+    if (active && hasSegments && newest !== null && this.playhead === null) {
+      this.replayDelayMs = measuredDelay;
+      this.playhead = newest - measuredDelay;
       this.clock = { time: newest, at: now };
     }
     this.static = snapshot.session.complete || snapshot.session.state >= 2 || reduced;
     this.active = active;
-    this.running = active && fresh && !reduced && !["RED", "UNKNOWN"].includes(snapshot.session.flag);
+    this.running = running;
   }
   positions(now) {
     this.advance(now);
@@ -166,5 +184,6 @@ export class TimingPositions {
   delaySeconds(now) {
     return this.clock && this.playhead !== null ? Math.max(0, (this.clock.time + now - this.clock.at - this.playhead) / 1000) : null;
   }
-  freshnessMs() { return Math.max(20000, Math.min(120000, this.targetBufferMs + 15000)); }
+  // A stale-source threshold is separate from playback delay.
+  freshnessMs() { return 60000; }
 }

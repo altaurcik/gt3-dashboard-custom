@@ -38,30 +38,31 @@ test("completed sectors use actual per-sector durations on the cumulative race c
 test("sector replay moves over a measured sector duration even with no progress updates", () => {
   const positions = new TimingPositions(); positions.update(snapshot([car()]), 0);
   const first = positions.positions(0)[0].distance;
-  // A 50-second longest sector plus 8 seconds delivery buffer starts at race t=942.
-  assert.ok(Math.abs(first - (lapDistance + 1616.4 + .8 * (2977.2 - 1616.4))) < .001);
-  assert.equal(positions.delaySeconds(0), 58);
-  assert.equal(positions.positions(8000)[0].distance, lapDistance + 2977.2);
-  const halfS3 = positions.positions(33000)[0].distance;
+  // The measured 50-second S3 sets one sector of delay, with no extra reserve.
+  assert.equal(first, lapDistance + 2977.2);
+  assert.equal(positions.delaySeconds(0), 50);
+  const halfS3 = positions.positions(25000)[0].distance;
   assert.equal(halfS3, lapDistance + (2977.2 + 4653) / 2);
-  assert.equal(positions.positions(58000)[0].distance, lapDistance + 4653);
+  assert.equal(positions.positions(50000)[0].distance, lapDistance + 4653);
 });
 test("a long pre-race wait does not start the replay clock or accumulate map delay", () => {
   const positions=new TimingPositions();
   positions.update(snapshot([car({laps:0,sectorLapNumber:0,totalTime:"0.000",sectors:[]})],{state:0}),0);
   assert.equal(positions.clock,null);assert.deepEqual(positions.positions(600000),[]);
   positions.update(snapshot([car()]),600000);
-  assert.equal(positions.delaySeconds(600000),58);
+  assert.equal(positions.delaySeconds(600000),50);
   assert.equal(positions.positions(600000)[0].replaying,true);
 });
-test("unequal sectors and the finish join continuously across sparse sector-only packets", () => {
-  const positions = new TimingPositions(); positions.update(snapshot([car()]), 0);
+test("30-second sector packets join continuously across sectors and the finish with a 30-second delay", () => {
+  const timedCar = (extra = {}) => car({sectors:[{time:"30.000"},{time:"30.000"},{time:"30.000"}],...extra});
+  const positions = new TimingPositions(); positions.update(snapshot([timedCar()]), 0);
   let previous = positions.positions(0)[0].distance;
   for (let second=1; second<=175; second++) {
-    if (second===30 || second===70) positions.update(snapshot([car({progress:second===30?1:2, sectorLapNumber:11,
-      sectors:second===30?[{time:"30.000"}]:[{time:"30.000"},{time:"40.000"}]})]), second*1000);
-    if (second===120) positions.update(snapshot([car({laps:11,sectorLapNumber:11,totalTime:"18:40.000"})]),second*1000);
-    if (second===150) positions.update(snapshot([car({laps:11,sectorLapNumber:12,totalTime:"18:40.000",progress:1,sectors:[{time:"30.000"}]})]),second*1000);
+    if (second===30 || second===60) positions.update(snapshot([timedCar({progress:second===30?1:2, sectorLapNumber:11,
+      sectors:second===30?[{time:"30.000"}]:[{time:"30.000"},{time:"30.000"}]})]), second*1000);
+    if (second===90) positions.update(snapshot([timedCar({laps:11,sectorLapNumber:11,totalTime:"18:10.000"})]),second*1000);
+    if (second===120 || second===150) positions.update(snapshot([timedCar({laps:11,sectorLapNumber:12,totalTime:"18:10.000",progress:second===120?1:2,
+      sectors:second===120?[{time:"30.000"}]:[{time:"30.000"},{time:"30.000"}]})]),second*1000);
     const point=positions.positions(second*1000)[0];
     assert.equal(point.replaying,true,`buffer at t=${second}`);
     assert.ok(point.distance>previous,`stopped or reversed at t=${second}`);
@@ -119,27 +120,39 @@ test("opening mid-sector keeps every eligible car visible while the replay buffe
   const row=car({laps:3,sectorLapNumber:4,totalTime:"5:16.383",progress:.9897912796707509,sectors:[{time:"32.651"}]});
   positions.update(snapshot([row]),0);
   const initial=positions.positions(0)[0];
-  assert.equal(initial.row.number,"71");assert.equal(initial.replaying,false);
-  assert.equal(initial.distance,sectorDistance(row.progress));
-  const begun=positions.positions(8001)[0];
+  assert.equal(initial.row.number,"71");assert.equal(initial.replaying,true);
+  assert.ok(initial.distance>=3*4653 && initial.distance<3*4653+1616.4);
+  const begun=positions.positions(1000)[0];
   assert.equal(begun.replaying,true);
   assert.ok(positions.positions(10000)[0].distance>begun.distance);
 });
-test("a formation-lap buffer shrinks when racing sectors replace it", () => {
+test("formation outliers never set the delay and resuming does not add the paused duration", () => {
   const positions=new TimingPositions();
   positions.update(snapshot([car({sectors:[{time:"3:30.000"},{time:"40.000"},{time:"50.000"}]})]),0);
-  assert.equal(positions.delaySeconds(0),218);
+  assert.equal(positions.delaySeconds(0),50);
   positions.update(snapshot([car({laps:11,sectorLapNumber:11,totalTime:"18:40.000"})]),120000);
-  assert.equal(positions.delaySeconds(120000),58);
+  assert.equal(positions.delaySeconds(120000),50);
   assert.equal(positions.positions(120000)[0].replaying,true);
+  positions.freeze(120000);
+  positions.update(snapshot([car({laps:12,sectorLapNumber:12,totalTime:"20:40.000"})]),360000);
+  assert.equal(positions.delaySeconds(360000),50);
 });
 test("one pit-delayed outlier does not hold up the field; a sector interval is not prematurely stale", () => {
   const positions=new TimingPositions();
   const rows=Array.from({length:30},(_,i)=>car({number:String(i+1)}));
   rows.push(car({number:"46",sectors:[{time:"3:30.000"},{time:"40.000"},{time:"50.000"}]}));
   positions.update(snapshot(rows),0);
-  assert.equal(positions.delaySeconds(0),58);
+  assert.equal(positions.delaySeconds(0),50);
   assert.ok(positions.freshnessMs()>50000);assert.ok(positions.freshnessMs()<=120000);
+});
+test("measured GT3 sector times set a single sector of delay without a parsing reserve or pit outlier", () => {
+  const positions = new TimingPositions();
+  const rows=["40.073","40.986","41.142","38.851","2:30.960"].map((s3,i)=>car({number:String(i+1),sectors:[{time:"32.728"},{time:"33.403"},{time:s3}]}));
+  positions.update(snapshot(rows),0);
+  assert.ok(Math.abs(positions.delaySeconds(0)-41.142)<.000001);
+  const racing=rows.map(row=>({...row,laps:11,sectorLapNumber:11,totalTime:"18:40.000",sectors:[{time:"33.000"},{time:"33.500"},{time:"39.000"}]}));
+  positions.update(snapshot(racing),120000);
+  assert.equal(positions.delaySeconds(120000),39);
 });
 test("a TV Sync seek within the same lap drops sector endpoints from the future", () => {
   const positions=new TimingPositions();
